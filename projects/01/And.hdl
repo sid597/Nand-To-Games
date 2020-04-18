@@ -12,7 +12,10 @@
 CHIP And {
     IN a, b;
     OUT out;
+    
 
     PARTS:
-    // Put your code here:
+    Nand (a=a, b= b, out=aa);
+    Nand (a=aa, b=aa, out=out);
 }
+
