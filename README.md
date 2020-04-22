@@ -40,6 +40,7 @@ I plan on completing as fast as possible without compromising on my learning. Ti
 Projects done till now :
 Project 1 -> DONE
 *Build the following chips : 
+
   *Nand gate (primitive)
   *Not gate
   *And gate
