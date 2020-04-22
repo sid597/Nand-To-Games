@@ -39,8 +39,9 @@ I plan on completing as fast as possible without compromising on my learning. Ti
 
 Projects done till now :
 Project 1 -> DONE
-*Build the following chips : 
 
+
+*Build the following chips : 
   *Nand gate (primitive)
   *Not gate
   *And gate
@@ -64,6 +65,8 @@ Project 1 -> DONE
   *16-bit/8-way mux
   *4-way demultiplexor
   *8-way demultiplexor
+  
+  
 Project 2 -> DONE
 
 
