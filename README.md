@@ -40,12 +40,12 @@ I plan on completing as fast as possible without compromising on my learning. Ti
 Projects done till now :
 Project 1 -> DONE
 
+* Build the following chips : 
 
-*Build the following chips : 
-  *Nand gate (primitive)
-  *Not gate
-  *And gate
-  *Or gate
+  * Nand gate (primitive)
+  * Not gate
+  * And gate
+  * Or gate
   *Xor gate
   *Mux gate
   *DMux gate
@@ -65,12 +65,10 @@ Project 1 -> DONE
   *16-bit/8-way mux
   *4-way demultiplexor
   *8-way demultiplexor
-  
-  
 Project 2 -> DONE
 
 
-*Build the following chips : 
+Build the following chips : 
   *Half Adder
   *Full Adder
   *16-bit Adder
@@ -81,7 +79,7 @@ Project 2 -> DONE
 
 Project 3 -> In Progress
 
-*Building the following chips :
+Building the following chips :
     *1-bit register                   DONE
     *16-bit register                  DONE
     *16-bit / 8-register memory
