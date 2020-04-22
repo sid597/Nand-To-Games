@@ -6,18 +6,18 @@
 The idea is to understand how computer's work and whats a better way than to build one. In this course I am building a modern computer from just a Nand gate. The hardware is built using HDL
 software provided by the system architect, following projects are build in this course:
 
-Project 1: Boolean Logic
-Project 2: Boolean Arithmetic
-Project 3: Sequential Logic
-Project 4: Machine Language
-Project 5: Computer Architecture
-Project 6: Assembler
-Project 7: VM I: Stack Arithmetic
-Project 8: VM II: Program Control
-Project 9: High-Level Language
-Project 10: Compiler I: Syntax Analysis
-Project 11: Compiler II: Code Generation
-Project 12: Operating System
+* Project 1: Boolean Logic
+* Project 2: Boolean Arithmetic
+* Project 3: Sequential Logic
+* Project 4: Machine Language
+* Project 5: Computer Architecture
+* Project 6: Assembler
+* Project 7: VM I: Stack Arithmetic
+* Project 8: VM II: Program Control
+* Project 9: High-Level Language
+* Project 10: Compiler I: Syntax Analysis
+* Project 11: Compiler II: Code Generation
+* Project 12: Operating System
 
 ## Why doing this course ?
 
@@ -39,7 +39,7 @@ I plan on completing as fast as possible without compromising on my learning. Ti
 
 Projects done till now :
 Project 1 -> DONE
-    Build the following chips : 
+    *Build the following chips : 
         Nand gate (primitive)
         Not gate
         And gate
@@ -65,7 +65,7 @@ Project 1 -> DONE
         8-way demultiplexor
 
 Project 2 -> DONE
-    Build the following chips : 
+    *Build the following chips : 
         Half Adder
         Full Adder
         16-bit Adder
@@ -74,7 +74,7 @@ Project 2 -> DONE
         Arithmetic Logic Unit (complete)
 
 Project 3 -> In Progress
-    Building the following chips :
+    *Building the following chips :
         1-bit register                   DONE
         16-bit register                  DONE
         16-bit / 8-register memory
