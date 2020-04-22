@@ -39,50 +39,54 @@ I plan on completing as fast as possible without compromising on my learning. Ti
 
 Projects done till now :
 Project 1 -> DONE
-    *Build the following chips : 
-        Nand gate (primitive)
-        Not gate
-        And gate
-        Or gate
-        Xor gate
-        Mux gate
-        DMux gate
-        16-bit Not
-        16-bit And
-        Or16
-        Mux16
-        Or8Way
-        Mux4Way6
-        Mux8Way16
-        DMux4Way
-        DMux8Way
-        16-bit Or
-        16-bit multiplexor
-        Or(in0,in1,...,in7)
-        16-bit/4-way mux
-        16-bit/8-way mux
-        4-way demultiplexor
-        8-way demultiplexor
+
+*Build the following chips : 
+        *Nand gate (primitive)
+        *Not gate
+        *And gate
+        *Or gate
+        *Xor gate
+        *Mux gate
+        *DMux gate
+        *16-bit Not
+        *16-bit And
+        *Or16
+        *Mux16
+        *Or8Way
+        *Mux4Way6
+        *Mux8Way16
+        *DMux4Way
+        *DMux8Way
+        *16-bit Or
+        *16-bit multiplexor
+        *Or(in0,in1,...,in7)
+        *16-bit/4-way mux
+        *16-bit/8-way mux
+        *4-way demultiplexor
+        *8-way demultiplexor
 
 Project 2 -> DONE
+
+*Build the following chips : 
     *Build the following chips : 
-        Half Adder
-        Full Adder
-        16-bit Adder
-        16-bit incrementer
-        Arithmetic Logic Unit (without handling of status outputs)
-        Arithmetic Logic Unit (complete)
+        *Half Adder
+        *Full Adder
+        *16-bit Adder
+        *16-bit incrementer
+        *Arithmetic Logic Unit (without handling of *status outputs)
+        *Arithmetic Logic Unit (complete)
 
 Project 3 -> In Progress
-    *Building the following chips :
-        1-bit register                   DONE
-        16-bit register                  DONE
-        16-bit / 8-register memory
-        16-bit / 64-register memory
-        16-bit / 512-register memory
-        16-bit / 4096-register memory
-        16-bit / 16384-register memory
-        16-bit program counter
+
+*Building the following chips :
+        *1-bit register                   DONE
+        *16-bit register                  DONE
+        *16-bit / 8-register memory
+        *16-bit / 64-register memory
+        *16-bit / 512-register memory
+        *16-bit / 4096-register memory
+        *16-bit / 16384-register memory
+        *16-bit program counter
 
 
 
