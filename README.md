@@ -76,11 +76,13 @@ Project 2 -> DONE
   * Arithmetic Logic Unit (complete)
 
 
-Project 3 -> In Progress
+Project 3 -> DONE 
+
+Implementing PC ( Program counter was somewhat tricky ) liked the tricks used to implement all other chips
 
 * Building the following chips :
-    * 1-bit register                   DONE
-    * 16-bit register                  DONE
+    * 1-bit register                   
+    * 16-bit register                  
     * 16-bit / 8-register memory
     * 16-bit / 64-register memory
     * 16-bit / 512-register memory
