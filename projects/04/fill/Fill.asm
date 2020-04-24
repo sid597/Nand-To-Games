@@ -12,3 +12,105 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+
+ 
+    (LP)
+
+    @KBD
+    D=M
+
+    @PRESSED
+    D;JGT
+
+    @NP
+    D;JEQ
+
+    @LP
+    0;JMP
+
+    (PRESSED)
+
+    // Let arr = Screen
+    @SCREEN
+    D=A
+    @arr
+    M=D
+
+    // Let n = 8192
+    @8192
+    D=A
+    @n
+    M=D
+
+    // Let i = 0
+    @i
+    M=0
+    (LOOP)
+
+    // if (i==n) goto END
+    @i
+    D=M
+    @n
+    D=D-M
+
+    @LP
+    D;JEQ
+
+    // RAM[arr+i] = -1
+    @arr
+    D=M
+    @i
+    A=D+M
+    M=-1
+
+    // i++
+    @i
+    M=M+1
+    
+    @LOOP
+    0;JMP
+
+    (NP)
+
+    // Let arr = Screen
+    @SCREEN
+    D=A
+    @arr
+    M=D
+
+    // Let n = 8192
+    @8192
+    D=A
+    @n
+    M=D
+
+    // Let i = 0
+    @i
+    M=0
+    (LOOP1)
+
+    // if (i==n) goto END
+    @i
+    D=M
+    @n
+    D=D-M
+
+    @LP
+    D;JEQ
+
+    // RAM[arr+i] = -1
+    @arr
+    D=M
+    @i
+    A=D+M
+    M=0
+
+    // i++
+    @i
+    M=M+1
+    
+    @LOOP1
+    0;JMP
+
+    @LP
+    0;JMP
