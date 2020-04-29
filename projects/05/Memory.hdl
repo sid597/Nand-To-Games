@@ -25,7 +25,9 @@
 CHIP Memory {
     IN in[16], load, address[15];
     OUT out[16];
+    BUILTIN Keyboard;
+    BUILTIN Screen;
 
     PARTS:
-    // Put your code here:
+    
 }

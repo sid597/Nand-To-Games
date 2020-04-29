@@ -39,5 +39,51 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+     
+    // Mux 1
+    //Multiplexer for instruction and aluOutput
+    Mux16(a=instruction, b=aluOutput, sel=instruction[15], out=Mux1);
+
+    // A register  
+    Mux(a=true, b=instruction[5], sel=instruction[15], out=ARegisterLoadBit);
+    ARegister(in=Mux1, load=ARegisterLoadBit, out=ARegisterOutput, out[0..14]= addressM);
+    
+    // D Register 
+    And(a=instruction[4],b=instruction[15],out=DRegisterLoadBit);
+    DRegister(in=aluOutput, load=DRegisterLoadBit, out=DRegisterOutput ); 
+
+    // Mux 2
+    // Multiplexer for ARegisterOutput and inM
+    // Mux(a=false, b=instruction[12],sel=instruction[15], out=iOrALoadBit);
+    And(a=instruction[12],b=instruction[15],out=aAndi);
+    Mux16(a=ARegisterOutput, b=inM, sel=aAndi, out=Mux2);
+
+    // writeM
+    And(a=instruction[3],b=instruction[15],out=writeM);
+
+    // ALU 
+    ALU(x=DRegisterOutput, y=Mux2, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOutput, zr=zro, ng=ngo,out=outM ); 
+
+ 
+    
+    // Program Counter
+    
+    Not(in=ngo,out=notng); // not ng
+    Not(in=zro, out=notzr);
+        And(a=instruction[15], b=instruction[0], out=j0);
+    And(a=instruction[15], b=instruction[1], out=j1);
+    And(a=instruction[15], b=instruction[2], out=j2);
+
+
+    And(a=ngo, b=j2, out=JLT); // ng and j1
+    And(a=zro, b=j1, out=JEQ); // zr and j2
+    And(a=notng, b=j0, out=j0andnotng); // not ng and j3
+    And(a=notzr, b=j0andnotng, out=JGT);
+    
+    Or(a=JGT,b=JLT,out=jump);    // j1 or j3
+    Or(a=jump,b=JEQ,out=pcLoad); // j1 or j2 or j3
+
+    
+    PC(in=ARegisterOutput, load=pcLoad, inc=true, reset=reset, out[0..14]=pc);
+
 }

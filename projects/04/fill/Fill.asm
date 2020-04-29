@@ -28,7 +28,7 @@
     @LP
     0;JMP
 
-    (PRESSED)
+    (PRESSED)  // If key is pressed 
 
     // Let arr = Screen
     @SCREEN
@@ -47,7 +47,7 @@
     M=0
     (LOOP)
 
-    // if (i==n) goto END
+    // if (i==n) goto Main loop
     @i
     D=M
     @n
@@ -60,7 +60,7 @@
     @arr
     D=M
     @i
-    A=D+M
+    A=D+M   // THIS IS IMPORTANT POINTER MANIPULATION 
     M=-1
 
     // i++
@@ -70,7 +70,7 @@
     @LOOP
     0;JMP
 
-    (NP)
+    (NP)  // If not pressed
 
     // Let arr = Screen
     @SCREEN
