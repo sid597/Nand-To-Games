@@ -91,7 +91,7 @@ class Parser(object):
         if the len of instruction is zero it means this is am empty line
         else compute the type of command and if it has comments remove them
 
-        :return:
+        :return: output and command type lists
         """
 
         with open(self.vm_file_path, 'r') as vmf:
@@ -118,167 +118,207 @@ class Code_Writer(object):
         self.parsed_file = parsed_file
         self.command_types = command_types
 
-    def add(self,where):
-        """
-        example (initially) :
-            sp -> 259
-                    257, 258, 259
-            stack -> 12,  13,  sp
-            add
-        operations for add :
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp += d    25      ++
-            sp++        258
-        operations for sub
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp -= d    25      --
-            sp++        258
-        operations for eq
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp == d    25      eq
-            sp++        258
-        operations for gt
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp > d     25      GT
-            sp++        258
-        operations for lt
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp < d     25      LT
-            sp++        258
-        operations for And
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp && d    25      &&
-            sp++        258
-        operations for Or
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp || d    25      ||
-            sp++        258
-        operations for Not
-            sp--        258
-            d = *sp     13
-            sp--        257
-            *sp ~ d     25       Not
-            sp++        258
 
+    # def write_to_file(self,assembly_code):
+    #     """Write the assembly code supplied to the corresponding asm file
+    #
+    #     :param assembly_code: the code that is to be written
+    #     :return: write to the file
+    #     """
+    #     with open(self.fm_file_path,'a') as write_file:
+    #         write_file.write(assembly_code)
+
+    def write_arithmetic(self,command):
+        """Perform arithmetic operations on the last 2 elements in the stack
+
+        FOR ARITHMETIC BASED :
+
+        Perform arithmetic operations on the last 2 elements in the stack, save the result
+        in 2 positions before the current pointer location. Arithmetic operations are:
+        add, sub, And, Or
+
+        example (initially) :
+            sp(stack pointer) -> 259
+            memory address ->                   257, 258, 259
+            memory address values (stack) ->     12,  13,  sp
+
+        operations for add :
+            1. sp--        258
+            2. d = *sp     13
+            3. sp--        257
+            4. *sp += d    25      ++
+            5. sp++        258
+        operations for sub
+            1. same as add operation 1
+            2. same as add operation 2
+            3. same as add operation 3
+            4. *sp -= d    25      --
+            5. same as add operation 5
+        operations for And
+           1. same as add operation 1
+            2. same as add operation 2
+            3. same as add operation 3
+            *sp && d    25      &&
+           5. same as add operation 5
+        operations for Or
+            1. same as add operation 1
+            2. same as add operation 2
+            3. same as add operation 3
+            *sp || d    25      ||
+            5. same as add operation 5
+
+        NOTE: Above operations are not the best and compact implementation possible ,
+             I made some changes to the actual algorithm to do basically the same ops
+             above but in an efficient way
 
         So the above operations can be written in assembly as follows for add, sub,||,&&,~:
-            //sp--
+            // d = *(*sp-1)
                 @sp
-                M=M-1
-
-            // d = *sp
-                @sp
-                A=M
+                A=M-1
                 D=M
 
-            //sp--
+            // sp--
                 @sp
                 M=M-1
 
-            //*sp += D  //*sp -= D
-                @sp          @sp
-                A=M          A=M
-                M=M+D        M=M-D
-
-            //sp++
+            // *(*sp-1) = *(*sp-1) + D  ->  this is an example for add but we can replace with other operations
                 @sp
-                M=M+1
+                A=M-1
+                M=M+D
 
-        For gt,eq,lt we need to use jump :
 
-            //sp--
+        FOR NEG :
+
+        Goto last element in the stack, negate its value, move the counter to next position where
+        the item was modified. Following is the pseudo implementation.
+         *(*sp-1)= neq *(*sp-1)    -13
+            // d = *(*sp-1)
                 @sp
-                M=M-1
-            // d = *sp
-                @sp
-                A=M
-                D=M
-            //sp--
-                @sp
-                M=M-1
-            // *sp = D-*sp  // comparison for lt
-                @sp
-                A=M
-                D=D-M
-            // if lt goto LT
-                @TRUE
-                D;JLT
-            //else NLT
-                @FALSE
-                D;JGE
-
-            (TRUE)
-            // *sp =1
-                @sp
-                A=M
-                M=1
-            //sp++
-                @sp
-                M=M+1
-            // jmp the following loop
-                @OUT
-                0;JMP
-
-            (FALSE)
-            // *sp =1
-
-                @sp
-                A=M
-                M=0
-            //sp++
-                @sp
-                M=M+1
-            (OUT)
+                A=M-1
+                M=-M
 
 
+        FOR COMPARISION BASED :
+
+        Perform comparision operations on the last 2 elements in the stack, save the result
+        in 2 positions before the current pointer location. Comparision operations are:
+        eq, lt, gt
+
+        example (initially) :
+            sp(stack pointer) -> 259
+            memory address ->                   257, 258, 259
+            memory address values (stack) ->     12,  13,  sp
+
+        Operations for the operations :
+
+             # LT
+                1. d = *(*sp-1)              13
+                2. sp--                      258
+                3. *sp = D-*(*sp-1)          -1  (goto 257, sub value in 258)
+                4. if lt goto TRUE           if the value in step 3 is -ve (i.e 257<258)
+                    1. *(*sp-1) =1           1 (set value at 257 to 1 (i.e True 257<258)
+                    2. Skip the False  loop
+                5. else FALSE                else
+                    1. *(*sp-1) =1           0 (set value at 257 to 1 (i.e False 257>258)
+
+             # GT
+                1. Same as in LT             13
+                2. Same as in LT             258
+                3. Same as in LT             -1 (goto 257, sub value in 258)
+                4. If gt goto TRUE           if the value in step 3 is +ve (i.e 257>258)
+                    1. *(*sp-1) =1           1 (set value at 257 to 1 (i.e True 257<258)
+                    2. Same as in LT
+                5. else False
+                    1. *(*sp-1) =1           0 (set value at 257 to 1 (i.e False 257<258)
 
 
-        operations for neq  -> This one is different from all the others
-            sp--        258
-            d = *sp     13
-            *sp = -d    -13
-            sp++        259
+             #EQ
+                1. Same as in LT             13
+                2. Same as in LT             258
+                3. Same as in LT             -1  (goto 257, sub value in 258)
+                4. If gt goto TRUE           if the value in step 3 is 0 (i.e 257==258)
+                    1. *(*sp-1) =1           1 (set value at 257 to 1 (i.e True 257==258)
+                    2. Same as in LT
+                5. else False
+                    1. *(*sp-1) =1           0 (set value at 257 to 1 (i.e False 257!=258)
 
-        :param where:
-        :return:
+
+
+        Following the psuedo assembly code for lt command can be replaced accordingly for others :
+                    // d = *(*sp-1)
+                        @sp
+                        A=M-1
+                        D=M
+                    //sp--
+                        @sp
+                        M=M-1
+                    // *sp = D-*(*sp-1)  // comparison for lt
+                        @sp
+                        A=M-1
+                        D=M-D
+                    // if lt goto TRUE
+                        @TRUE
+                        D;JLT
+                    //else FALSE
+                        @FALSE
+                        D;JGE
+
+                    (TRUE)
+                    // *(*sp-1) =1
+                        @sp
+                        A=M-1
+                        M=1
+
+                    // Skip the False  loop
+                        @OUT
+                        0;JMP
+
+                    (FALSE)
+                    // *(*sp-1) =1
+
+                        @sp
+                        A=M-1
+                        M=0
+
+                    (OUT)
+        :param command_type: The type of arithmetic command
+        :return: Write the corresponding command in the output file
         """
 
-    def neg(self, where):
+        d = {}
+        for dirpath, dirnames, files in os.walk("./arithmetic"):
+            for file_name in files:
+                with open("./arithmetic/" + file_name, 'r') as ff:
+                    file_name = file_name.split('.')[0]
+                    file_ = ff.read().splitlines()
+                    d[file_name] = file_
+        return d[command]
 
-    def write_aritmatic(self,command):
-
-        return ''
-
-    def local(self, where):
-    def argument(self, where):
-    def pointer(self, where):
-    def temp(self, where):
-    def static(self, where):
-    def constant(self, where):
-    def this(self, where):
-    def that(self, where):
-
-
+    def replace_with_i(self,command_list,i):
+        for item in range(len(command_list)):
+            if "%s" in command_list[item]:
+                command_list[item] = command_list[item].replace("%s",i)
+        return command_list
 
 
-    def write_push(self,command):
-        return ''
+    def write_push_pop(self,command):
+        command = command.split()
+        commandtype = ''.join(command[:2])
+        i = command[-1]
+        print commandtype, i
+        d = {}
+        for dirpath, dirnames, files in os.walk("./pushpop"):
+            for file_name in files:
+                with open("./pushpop/" + file_name, 'r') as ff:
+                    file_name = file_name.split('.')[0]
+                    file_ = ff.read().splitlines()
+                    d[file_name] = file_
 
-    def write_pop(self,command):
+        command_list = d[commandtype]
+        command_list = self.replace_with_i(command_list, i)
+        return command_list
+
+
 
     def open_file_and_write(self):
         file_path = self.vm_file_path.split('/')
@@ -291,13 +331,11 @@ class Code_Writer(object):
             command = self.parsed_file[ctr]
             command_type = self.command_types
             if command_type == "C_ARITHMETIC":
-                self.write_aritmatic(command)
-            elif command_type == "C_PUSH":
-                self.write_push(command)
-            elif command_type == "C_POP":
-                self.write_pop(command)
-
-
+                command_list = self.write_arithmetic(command)
+            elif command_type == "C_PUSH" or command_type == "C_POP":
+                command_list = self.write_push_pop(command)
+            for assembly_command in command_list:
+                asm_file.write(assembly_command)
         asm_file.close()
 
 
