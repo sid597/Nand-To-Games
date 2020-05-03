@@ -1,8 +1,10 @@
+// PUSH CONSTANT
+
 // *SP=i
 //SP++
 
 @%s
-D=M
+D=A
 @SP
 A=M
 M=D

@@ -1,10 +1,11 @@
+// PUSH STATIC
+
 // *SP = *foo.i
 // SP++
 
-@%s
-D=M
+
 @Foo.%s
-M=D
+D=M
 
 @SP
 A=M

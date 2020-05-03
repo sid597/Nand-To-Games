@@ -1,10 +1,10 @@
+//POP TEMP
 // *(5+i) = *(*SP-1)
 
-
 @%s
-D=M
-%5
-D=M+D
+D=A
+@5
+D=A+D
 @R13
 M=D
 @SP
@@ -13,3 +13,5 @@ D=M
 @R13
 A=M
 M=D
+@SP
+M=M-1

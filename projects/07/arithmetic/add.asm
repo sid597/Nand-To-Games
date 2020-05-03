@@ -1,8 +1,9 @@
-@sp
+// Add
+@SP
 A=M-1
 D=M
-@sp
+@SP
 M=M-1
-@sp
+@SP
 A=M-1
 M=M+D

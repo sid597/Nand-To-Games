@@ -1,3 +1,5 @@
+// POP THIS
+
 //R13=*(*THIS+i)
 //SP--
 //*R13=*SP
@@ -6,8 +8,7 @@
 @%s
 D=A
 @THIS
-A=D+M
-D=M
+D=M+D
 @R13
 M=D
 

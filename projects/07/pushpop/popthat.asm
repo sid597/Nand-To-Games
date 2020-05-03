@@ -1,3 +1,5 @@
+//POP THAT
+
 //R13=*(*THAT+i)
 //SP--
 //*R13=*SP
@@ -6,8 +8,7 @@
 @%s
 D=A
 @THAT
-A=D+M
-D=M
+D=M+D
 @R13
 M=D
 

@@ -1,3 +1,5 @@
+// PUSH LOCAL
+
 // d = *(*LCL+i)
 // *SP = d
 // SP++

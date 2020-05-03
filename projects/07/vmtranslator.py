@@ -113,8 +113,8 @@ class Code_Writer(object):
 
     """
 
-    def __init__(self,fm_file_path, parsed_file,command_types):
-        self.fm_file_path = fm_file_path
+    def __init__(self,vm_file_path, parsed_file,command_types):
+        self.vm_file_path = vm_file_path
         self.parsed_file = parsed_file
         self.command_types = command_types
 
@@ -128,7 +128,7 @@ class Code_Writer(object):
     #     with open(self.fm_file_path,'a') as write_file:
     #         write_file.write(assembly_code)
 
-    def write_arithmetic(self,command):
+    def write_arithmetic(self,command,ctr):
         """Perform arithmetic operations on the last 2 elements in the stack
 
         FOR ARITHMETIC BASED :
@@ -173,16 +173,16 @@ class Code_Writer(object):
 
         So the above operations can be written in assembly as follows for add, sub,||,&&,~:
             // d = *(*sp-1)
-                @sp
+                @SP
                 A=M-1
                 D=M
 
             // sp--
-                @sp
+                @SP
                 M=M-1
 
             // *(*sp-1) = *(*sp-1) + D  ->  this is an example for add but we can replace with other operations
-                @sp
+                @SP
                 A=M-1
                 M=M+D
 
@@ -193,7 +193,7 @@ class Code_Writer(object):
         the item was modified. Following is the pseudo implementation.
          *(*sp-1)= neq *(*sp-1)    -13
             // d = *(*sp-1)
-                @sp
+                @SP
                 A=M-1
                 M=-M
 
@@ -246,14 +246,14 @@ class Code_Writer(object):
 
         Following the psuedo assembly code for lt command can be replaced accordingly for others :
                     // d = *(*sp-1)
-                        @sp
+                        @SP
                         A=M-1
                         D=M
                     //sp--
-                        @sp
+                        @SP
                         M=M-1
                     // *sp = D-*(*sp-1)  // comparison for lt
-                        @sp
+                        @SP
                         A=M-1
                         D=M-D
                     // if lt goto TRUE
@@ -265,7 +265,7 @@ class Code_Writer(object):
 
                     (TRUE)
                     // *(*sp-1) =1
-                        @sp
+                        @SP
                         A=M-1
                         M=1
 
@@ -276,7 +276,7 @@ class Code_Writer(object):
                     (FALSE)
                     // *(*sp-1) =1
 
-                        @sp
+                        @SP
                         A=M-1
                         M=0
 
@@ -292,16 +292,21 @@ class Code_Writer(object):
                     file_name = file_name.split('.')[0]
                     file_ = ff.read().splitlines()
                     d[file_name] = file_
-        return d[command]
-
-    def replace_with_i(self,command_list,i):
-        for item in range(len(command_list)):
-            if "%s" in command_list[item]:
-                command_list[item] = command_list[item].replace("%s",i)
+        command_list = d[command]
+        command_list = self.replace_with_i(command_list, 0,ctr)
         return command_list
 
 
-    def write_push_pop(self,command):
+    def replace_with_i(self,command_list,i,ctr):
+        for item in range(len(command_list)):
+            if "%s" in command_list[item]:
+                command_list[item] = command_list[item].replace("%s",i)
+            if "%t" in command_list[item]:
+                command_list[item] = command_list[item].replace("%t",str(ctr))
+        return command_list
+
+
+    def write_push_pop(self,command,ctr):
         command = command.split()
         commandtype = ''.join(command[:2])
         i = command[-1]
@@ -315,7 +320,7 @@ class Code_Writer(object):
                     d[file_name] = file_
 
         command_list = d[commandtype]
-        command_list = self.replace_with_i(command_list, i)
+        command_list = self.replace_with_i(command_list, i,ctr)
         return command_list
 
 
@@ -329,13 +334,14 @@ class Code_Writer(object):
         asm_file = open(asm_file_location, 'w')
         for ctr in xrange(len(self.parsed_file)):
             command = self.parsed_file[ctr]
-            command_type = self.command_types
+            command_type = self.command_types[ctr]
+            print command_type
             if command_type == "C_ARITHMETIC":
-                command_list = self.write_arithmetic(command)
+                command_list = self.write_arithmetic(command,ctr)
             elif command_type == "C_PUSH" or command_type == "C_POP":
-                command_list = self.write_push_pop(command)
+                command_list = self.write_push_pop(command,ctr)
             for assembly_command in command_list:
-                asm_file.write(assembly_command)
+                asm_file.write(assembly_command +"\n")
         asm_file.close()
 
 
@@ -358,9 +364,10 @@ def main():
         print file_or_dir
         with open(file_or_dir, 'r') as vm_file_code:
             file_path = (os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + "/" + file_or_dir
-            p = Parser(vm_file_code, file_path)
-            parsed_file, command_typ = p.parse_asm()
-            asm_file_loc = p.create_asm_file()
+            parser = Parser(vm_file_code, file_path)
+            parsed_file, command_type_list = parser.parse_asm()
+            code_writer = Code_Writer(file_path, parsed_file, command_type_list)
+            code_writer.open_file_and_write()
 
         vm_file_code.close()
 
@@ -372,8 +379,10 @@ def main():
                     file_path = (os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + "/" + \
                                 dirpath + "/" + file_name
                     with open(file_path, 'r') as vm_file_code:
-                        p = Parser(vm_file_code, file_path)
-                        parsed_file, command_typ = p.parse_asm()
+                        parser = Parser(vm_file_code, file_path)
+                        parsed_file, command_type_list = parser.parse_asm()
+                        code_writer = Code_Writer(file_path, parsed_file, command_type_list)
+                        code_writer.open_file_and_write()
 
                     vm_file_code.close()
 

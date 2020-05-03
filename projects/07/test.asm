@@ -20,7 +20,8 @@ M=M+1
 @0
 D=A
 @LCL
-D=M+D
+A=D+M
+D=M
 @R13
 M=D
 
@@ -67,7 +68,8 @@ M=M+1
 @2
 D=A
 @ARG
-D=M+D
+A=D+M
+D=M
 @R13
 M=D
 
@@ -88,7 +90,8 @@ M=D
 @1
 D=A
 @ARG
-D=M+D
+A=D+M
+D=M
 @R13
 M=D
 
@@ -123,7 +126,8 @@ M=M+1
 @6
 D=A
 @THIS
-D=M+D
+A=D+M
+D=M
 @R13
 M=D
 
@@ -171,7 +175,8 @@ M=M+1
 @5
 D=A
 @THAT
-D=M+D
+A=D+M
+D=M
 @R13
 M=D
 
@@ -193,7 +198,8 @@ M=D
 @2
 D=A
 @THAT
-D=M+D
+A=D+M
+D=M
 @R13
 M=D
 
@@ -223,166 +229,5 @@ M=M+1
 
 @6
 D=A
-@5
-D=A+D
-@R13
-M=D
-@SP
-A=M-1
-D=M
-@R13
-A=M
-M=D
-@SP
-M=M-1
-// PUSH LOCAL
-
-// d = *(*LCL+i)
-// *SP = d
-// SP++
-@0
-D=A
-@LCL
-A=D+M
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-// PUSH THAT
-
-// d = *(*THAT+i)
-// *SP = d
-// SP++
-
-
-@5
-D=A
-@THAT
-A=D+M
-D=M
-
-@SP
-A=M
-M=D
-
-@SP
-M=M+1
-// Add
-@SP
-A=M-1
-D=M
-@SP
-M=M-1
-@SP
-A=M-1
-M=M+D
-// PUSH ARGUMENT
-
-// d = *(*ARG+i)
-// *SP = d
-// SP++
-
-
-@1
-D=A
-@ARG
-A=D+M
-D=M
-
-@SP
-A=M
-M=D
-
-@SP
-M=M+1
-//Sub
-@SP
-A=M-1
-D=M
-@SP
-M=M-1
-@SP
-A=M-1
-M=M-D
-//PUSH THIS
-
-// d = *(*THIS+i)
-// *SP = d
-// SP++
-
-
-@6
-D=A
-@THIS
-A=D+M
-D=M
-
-@SP
-A=M
-M=D
-
-@SP
-M=M+1
-//PUSH THIS
-
-// d = *(*THIS+i)
-// *SP = d
-// SP++
-
-
-@6
-D=A
-@THIS
-A=D+M
-D=M
-
-@SP
-A=M
-M=D
-
-@SP
-M=M+1
-// Add
-@SP
-A=M-1
-D=M
-@SP
-M=M-1
-@SP
-A=M-1
-M=M+D
-//Sub
-@SP
-A=M-1
-D=M
-@SP
-M=M-1
-@SP
-A=M-1
-M=M-D
-// PUSH TEMP
-
-// *SP=*(5+i)
-// SP++
-
-@6
-D=A
-@5
-A=D+A
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-// Add
-@SP
-A=M-1
-D=M
-@SP
-M=M-1
-@SP
-A=M-1
-M=M+D
+%5
+D=M+D

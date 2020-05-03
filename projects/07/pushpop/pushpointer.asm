@@ -1,27 +1,29 @@
+//PUSH POINTER
+
 //*SP = This 0
 //*SP = That 1
 //SP++
 
 @%s
-D=M
-@This
+D=A
+@This%t
 D;JEQ
-@That
+@That%t
 D;JNE
-(This)
+(This%t)
 @THIS
 D=M
 @SP
 A=M
 M=D
-@End
+@End%t
 0;JMP
-(That)
+(That%t)
 @THAT
 D=M
 @SP
 A=M
 M=D
-(End)
+(End%t)
 @SP
 M=M+1

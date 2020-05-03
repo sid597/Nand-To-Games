@@ -1,3 +1,4 @@
+// POP ARGUMENT
 //R13=*(*ARG+i)
 //SP--
 //*R13=*SP
@@ -6,8 +7,7 @@
 @%s
 D=A
 @ARG
-A=D+M
-D=M
+D=M+D
 @R13
 M=D
 
