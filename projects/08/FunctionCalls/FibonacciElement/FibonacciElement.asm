@@ -142,21 +142,21 @@ M=M-1
 @SP
 A=M-1
 D=M-D
-@TRUEMain3
+@TRUE$Main3
 D;JLT
-@FALSEMain3
+@FALSE$Main3
 D;JGE
-(TRUEMain3)
+(TRUE$Main3)
 @SP
 A=M-1
 M=-1
-@OUTMain3
+@OUT$Main3
 0;JMP
-(FALSEMain3)
+(FALSE$Main3)
 @SP
 A=M-1
 M=0
-(OUTMain3)
+(OUT$Main3)
 // if-goto COMMAND Name
 
 @SP
@@ -164,7 +164,7 @@ M=M-1
 @SP
 A=M
 D=M
-@IF_TRUE
+@Main$IF_TRUE
 D;JNE
 // GOTO COMMAND
 
