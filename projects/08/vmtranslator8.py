@@ -30,6 +30,22 @@ Parser : Handles the parsing of a single .vm file, and encapsulates access to th
 Code Writer: Translates VM commands into Hack assembly code.
 
 
+
+
+ TODO: Implement function to handle directory
+                  From all classes in dictonary extract their functions and also put them in dictionary
+
+                  d = {
+                    "class_1":{
+                        "function_1" : [],
+                        "finction_2" : []
+                    }
+                    ...
+                    ...
+                  }
+
+                  Convert function code
+
 """
 
 import sys
@@ -41,11 +57,12 @@ class Parser(object):
 
     """
 
-    def __init__(self, vm_file, vm_file_path):
+    def __init__(self, vm_file="", vm_file_path="", dir_path=""):
         self.vm_file = vm_file
         self.vm_file_path = vm_file_path
         self.output = []
         self.command_type_list = []
+        self.dir_path = dir_path
 
     def command_type(self, command):
         """Return the command type of command
@@ -58,21 +75,17 @@ class Parser(object):
                                  'neg': 'C_ARITHMETIC',
                                  'lt': 'C_ARITHMETIC', 'add': 'C_ARITHMETIC', 'not': 'C_ARITHMETIC',
                                  'eq': 'C_ARITHMETIC',
+                                 'function': 'C_FUNCTION',
+                                 'call': 'C_CALL',
+                                 'return': 'C_RETURN',
                                  'or': 'C_ARITHMETIC', 'push': 'C_PUSH', 'pop': 'C_POP', 'if-goto': 'C_IF',
                                  'label': 'C_LABEL', 'goto': "C_GOTO"}
         split_command = command.split()
-        command_type = split_command[0]
+        command_typ = split_command[0]
         has_comments = False
         if "//" in command:
             has_comments = True
-        # if command_type in arithmetic_commands:
-        #     return "C_ARITHMETIC", has_comments
-        # elif command_type == "push":
-        #     return "C_PUSH", has_comments
-        # elif command_type == "pop":
-        #     return "C_POP", has_comments
-
-        return command_and_its_types[command_type], has_comments
+        return command_and_its_types[command_typ], has_comments
 
     def remove_comments(self, command):
         """Remove comments from command received
@@ -85,7 +98,7 @@ class Parser(object):
         if not len(split_command):
             return ''
         else:
-            print split_command[0]
+            # print split_command[0]
             return split_command[0].strip()
 
     def parse_asm(self):
@@ -112,27 +125,72 @@ class Parser(object):
                     self.command_type_list.append(c_type)
         return self.output, self.command_type_list
 
+    def parse_directory(self):
+        """
+        This method does 3 things:
+        1. Create a .asm file with the same name as the directory
+        2. Create a dictionary with all the content in different vm files( i.e different classes) in the directory
+        3. Remove comments from all the classes
+        :return:
+        """
+        classes = {}
+        # print os.getcwd() + "/" + self.dir_name
+        # dire = os.getcwd() + "/" + self.dir_name +"/"+ self.dir_name
+        # print '------'
+        for dirpath, dirnames, files in os.walk(self.dir_path):
+
+            print dirpath, files
+            for file_name in files:
+                if file_name.endswith('.vm'):
+                    file_path = (dirpath + "/" + file_name)
+                    print file_path
+                    with open(file_path, 'r') as vm_file_code:
+                        class_name = file_name.split('.')[0]
+                        classes[class_name] = {}
+                        classes[class_name]['asm_commands'] = []
+                        classes[class_name]['command_type'] = []
+                        for instruction in vm_file_code:
+                            instruction = self.remove_comments(instruction)
+                            if instruction:
+                                classes[class_name]['asm_commands'].append(instruction)
+                                command_typ = self.command_type(instruction)[0]
+                                classes[class_name]['command_type'].append(command_typ)
+                    vm_file_code.close()
+        # vm_commands = []
+        # vm_commands.extend(classes['Sys'])
+        # for cls in classes:
+        #     if cls != "Sys":
+        #         vm_commands.extend(classes[cls])
+        return classes
+
+    def create_dir_asm(self):
+        file_path = self.dir_path + '.asm'
+        print file_path, 'ff'
+        open(file_path, 'a').close()
+
+        # Write Bootstrap code in file
+        set_sp = ["@256", "D=A", "@SP", "M=D"]
+        call_sysinit = ["@Sys.init", "D;JMP"]
+        with open(file_path, 'w') as asm_file:
+            for sp in set_sp:
+                asm_file.write(sp + "\n")
+            for call in call_sysinit:
+                asm_file.write(call + "\n")
+        asm_file.close()
+        return file_path
+
 
 class Code_Writer(object):
     """
 
     """
 
-    def __init__(self, vm_file_path, parsed_file, command_types):
+    def __init__(self, vm_file_path="", parsed_file="", command_types=""):
         self.vm_file_path = vm_file_path
         self.parsed_file = parsed_file
         self.command_types = command_types
 
-    # def write_to_file(self,assembly_code):
-    #     """Write the assembly code supplied to the corresponding asm file
-    #
-    #     :param assembly_code: the code that is to be written
-    #     :return: write to the file
-    #     """
-    #     with open(self.fm_file_path,'a') as write_file:
-    #         write_file.write(assembly_code)
-
-    def write_arithmetic(self, command, ctr):
+    def write_arithmetic(self, command, ctr, fun_name):
         """Perform arithmetic_files_asm operations on the last 2 elements in the stack
 
         FOR ARITHMETIC BASED :
@@ -197,6 +255,7 @@ class Code_Writer(object):
         the item was modified. Following is the pseudo implementation.
          *(*sp-1)= neq *(*sp-1)    -13
             // d = *(*sp-1)
+                @SP
                 @SP
                 A=M-1
                 M=-M
@@ -290,43 +349,56 @@ class Code_Writer(object):
         """
 
         d = {}
-        for dirpath, dirnames, files in os.walk("arithmetic_files_asm"):
+        arithmetic_dir = "/home/sid597/Nand-To-Games/projects/08/arithmetic_files_asm"
+        for dirpath, dirnames, files in os.walk(arithmetic_dir):
             for file_name in files:
-                with open("./arithmetic_files_asm/" + file_name, 'r') as ff:
+                with open(arithmetic_dir + "/" + file_name, 'r') as ff:
                     file_name = file_name.split('.')[0]
                     file_ = ff.read().splitlines()
                     d[file_name] = file_
         command_list = d[command]
-        command_list = self.replace_with_i(command_list, 0, ctr)
+        command_list = self.replace_with_i(command_list, 0, ctr, fun_name)
         return command_list
 
-    def replace_with_i(self, command_list, i, ctr):
+    def replace_with_i(self, command_list, i, ctr, fun_name):
+        """
+        %s is for the integer values which need to be replaced
+        %f is for replacing with function name
+        %t for creating unique names
+        :param command_list:
+        :param i:
+        :param ctr:
+        :param fun_name:
+        :return:
+        """
         for item in range(len(command_list)):
+            if "%f" in command_list[item]:
+                command_list[item] = command_list[item].replace("%f", fun_name)
             if "%s" in command_list[item]:
                 command_list[item] = command_list[item].replace("%s", i)
             if "%t" in command_list[item]:
-                command_list[item] = command_list[item].replace("%t", str(ctr))
+                command_list[item] = command_list[item].replace("%t", fun_name + str(ctr))
         return command_list
 
-    def label(self, label_name):
+    def label(self, label_name, function_name):
         """
 
         :param label_name:
         :return:
         """
-        commands_list = ["// Label\n", "(%s)" % label_name.split()[-1]]
+        commands_list = ["// LABEL COMMAND\n", "(%s)" % (function_name + '$' + label_name.split()[-1]), " "]
         return commands_list
 
-    def goto_label(self, label_name):
+    def goto_label(self, label_name, function_name):
         """
 
         :param label_name:
         :return:
         """
-        command_list = ['// Label\n', '@%s' % label_name.split()[-1], 'D;JMP']
+        command_list = ['// GOTO COMMAND\n', '@%s' % (function_name + '$' + label_name.split()[-1]), 'D;JMP', " "]
         return command_list
 
-    def if_goto_label_name(self, label_name):
+    def if_goto_label_name(self, label_name, function_name):
         """Implement the if-goto command
 
         If top stack value is 0  then continue
@@ -343,25 +415,69 @@ class Code_Writer(object):
         :param label_name:
         :return:
         """
-        command_list = ['// if-goto Label Name\n', '@SP', 'M=M-1', '@SP', 'A=M', 'D=M', '@%s' % label_name.split()[-1],
+        command_list = ['// if-goto COMMAND Name\n', '@SP', 'M=M-1', '@SP', 'A=M', 'D=M',
+                        '@%s' % (function_name + '$' + label_name.split()[-1]),
                         'D;JNE', ]
         return command_list
 
-    def write_push_pop(self, command, ctr):
+    def return_command(self, instruction, unique):
+        function_name = instruction.split()[1]
+        with open("/home/sid597/Nand-To-Games/projects/08/return.vm", 'r') as return_commands_file:
+            return_command_list = return_commands_file.read().splitlines()
+        return_commands_file.close()
+        return_list = []
+        for ctr in range(len(return_command_list)):
+            if '%s' in return_command_list[ctr]:
+                return_list.append(return_command_list[ctr].replace('%s', function_name))
+            elif '%ret' in return_command_list[ctr]:
+                return_list.append(return_command_list[ctr].replace('%ret', function_name + str(unique)))
+            else:
+                return_list.append(return_command_list[ctr])
+        return return_list
+
+    def call_function_command(self, instruction, unique):
+        function_name = instruction.split()[1]
+        nargs = instruction.split()[-1]
+        with open("/home/sid597/Nand-To-Games/projects/08/call.vm", 'r') as call_commands_file:
+            call_command_list = call_commands_file.read().splitlines()
+        call_commands_file.close()
+        call_list = []
+        for ctr in range(len(call_command_list)):
+            if '%s' in call_command_list[ctr]:
+                call_list.append(call_command_list[ctr].replace("%s", function_name))
+            elif '%retur' in call_command_list[ctr]:
+                call_list.append(call_command_list[ctr].replace("%retur", function_name + str(unique)))
+            elif '%nargs' in call_command_list[ctr]:
+                call_list.append(call_command_list[ctr].replace('%nargs', nargs))
+            else:
+                call_list.append(call_command_list[ctr])
+        return call_list
+
+    def function_command(self, command):
+        keyword, function_name, how_many_times = command.split()
+        function_list = ["//FUNCTION COMMAND", "(%s)" % function_name]
+        for i in range(int(how_many_times)):
+            function_list.extend(["@R0", 'D=A', '@SP', 'A=M', 'M=D', '@SP', 'M=M+1', " "])
+        return function_list
+
+    def write_push_pop(self, command, ctr, fun_name):
         command = command.split()
         commandtype = ''.join(command[:2])
         i = command[-1]
-        # print commandtype, i
+        print commandtype, i, command
         d = {}
-        for dirpath, dirnames, files in os.walk("pushpop_files_asm"):
+        push_pop_dir = "/home/sid597/Nand-To-Games/projects/08/pushpop_files_asm"
+        for dirpath, dirnames, files in os.walk(push_pop_dir):
+            # print files
             for file_name in files:
-                with open("./pushpop_files_asm/" + file_name, 'r') as ff:
+                with open(push_pop_dir + '/' + file_name, 'r') as ff:
                     file_name = file_name.split('.')[0]
                     file_ = ff.read().splitlines()
+                    # print file_
                     d[file_name] = file_
                 ff.close()
         command_list = d[commandtype]
-        command_list = self.replace_with_i(command_list, i, ctr)
+        command_list = self.replace_with_i(command_list, i, ctr, fun_name)
         return command_list
 
     def open_file_and_write(self):
@@ -382,13 +498,95 @@ class Code_Writer(object):
             elif command_type == "C_IF":
                 command_list = self.if_goto_label_name(command)
             elif command_type == "C_LABEL":
-                # print command
                 command_list = self.label(command)
             elif command_type == "C_GOTO":
                 command_list = self.goto_label(command)
             for assembly_command in command_list:
                 asm_file.write(assembly_command + "\n")
+            print command, command_list
         asm_file.close()
+
+    def get_function_from_class(self, class_dict, desired_function):
+        """Find desired_function in class_dict
+
+        How ?
+        desired_function will be like :  Class_name.function_name
+        split the desired_function and find class in class_dict
+        in that class find the first occurence of function name
+        from that(first function name) index onwards find index of next function declaration
+        meanwhile updating the index of return statement
+
+        Why ?
+        Because this is how  a function is defined
+
+        :param class_dict:
+        :param desired_function:
+        :return:
+        """
+
+        class_name = desired_function.split('.')[0]
+        # NOTE : Not handling the case where class_name is not present in class_dict assuming it will
+        #        always be there
+
+        desired_class = class_dict[class_name]
+        desired_function = "function " + desired_function
+        first_occurence_index = len(desired_class) + 1
+        return_index = len(desired_class) + 1
+        for indx in range(len(desired_class)):
+            instruction = desired_class[indx]
+
+            if desired_function in instruction:
+                first_occurence_index = indx
+            elif instruction.split()[0] == 'function':
+                break
+            elif instruction == 'return':
+                return_index = indx
+        return desired_class[first_occurence_index:return_index + 1]
+
+    def write_to_directory_file(self, class_dict, write_to_file):
+        print " write to file "
+        open(write_to_file, 'a').close()
+        with open(write_to_file, 'w') as vm_file:
+            print 'sdf', class_dict
+            set_sp = ["@261", "D=A", "@SP", "M=D"]
+            call_sysinit = ["@Sys.init", "D;JMP"]
+            for sp in set_sp:
+                vm_file.write(sp + "\n")
+            for call in call_sysinit:
+                vm_file.write(call + "\n")
+            for clas in class_dict:
+                print clas, '============================================================'
+                fun_nam = ''
+                for ctr in range(len(class_dict[clas]['asm_commands'])):
+                    command = class_dict[clas]['asm_commands'][ctr]
+                    command_type = class_dict[clas]['command_type'][ctr]
+                    if command_type == "C_ARITHMETIC":
+                        command_list = self.write_arithmetic(command, ctr, fun_nam)
+                    elif command_type == "C_PUSH" or command_type == "C_POP":
+                        command_list = self.write_push_pop(command, ctr, fun_nam)
+                    elif command_type == "C_IF":
+                        command_list = self.if_goto_label_name(command, fun_nam)
+                    elif command_type == "C_LABEL":
+                        print fun_nam, command
+                        command_list = self.label(command, fun_nam)
+                    elif command_type == "C_GOTO":
+                        command_list = self.goto_label(command, fun_nam)
+                    elif command_type == "C_FUNCTION":
+                        command_list = self.function_command(command)
+                        fun_nam = command.split()[1].split('.')[0]
+                        print command, fun_nam
+                    elif command_type == "C_CALL":
+                        command_list = self.call_function_command(command, ctr)
+                    elif command_type == "C_RETURN":
+                        command_list = self.return_command(class_dict[clas]['asm_commands'][0], ctr)
+                    for assembly_command in command_list:
+                        vm_file.write(assembly_command + "\n")
+
+        vm_file.close()
+
+
+from pprint import pprint
+from collections import deque
 
 
 def main():
@@ -409,27 +607,28 @@ def main():
         # print file_or_dir
         with open(file_or_dir, 'r') as vm_file_code:
             file_path = (os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + "/" + file_or_dir
-            parser = Parser(vm_file_code, file_path)
+            parser = Parser(vm_file_code="vm_file_code", file_path="file_path")
             parsed_file, command_type_list = parser.parse_asm()
             code_writer = Code_Writer(file_path, parsed_file, command_type_list)
             code_writer.open_file_and_write()
-
         vm_file_code.close()
 
     # If the argv is a dir
     elif os.path.isdir(file_or_dir):
-        for dirpath, dirnames, files in os.walk(file_or_dir):
-            for file_name in files:
-                if file_name.endswith('.vm'):
-                    file_path = (os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + "/" + \
-                                dirpath + "/" + file_name
-                    with open(file_path, 'r') as vm_file_code:
-                        parser = Parser(vm_file_code, file_path)
-                        parsed_file, command_type_list = parser.parse_asm()
-                        code_writer = Code_Writer(file_path, parsed_file, command_type_list)
-                        code_writer.open_file_and_write()
+        dir_path = os.path.abspath(file_or_dir)
+        print 'IS a directory', file_or_dir
 
-                    vm_file_code.close()
+        dir_name = file_or_dir.split('/')[-1]
+
+        parser = Parser(dir_path=dir_path)
+        class_dict = parser.parse_directory()
+        asm_file_path = (os.getcwd() + "/" + dir_name + "/" + dir_name + '.asm')
+        print asm_file_path
+        code_writer = Code_Writer()
+        code_writer.write_to_directory_file(class_dict, asm_file_path)
+        # print class_dict
+        # pprint(class_dict)
+
 
     else:
         print "Pass a valid file or dir"

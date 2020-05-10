@@ -7,5 +7,5 @@ M=M-1
 @SP
 A=M
 D=M
-@Foo.%s
+@%f.%s
 M=D

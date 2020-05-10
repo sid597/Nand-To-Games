@@ -1,0 +1,71 @@
+// RETURN COMMNAD
+// Endframe = LCL
+@LCL
+D=M
+// make this endframe unique to this method
+@endframe.%s
+M=D
+
+// This method returns address ReturnAddr = *(endframe -5)
+@5
+D=A
+@endframe.%s
+A=M-D
+D=M
+@ret.%ret
+M=D
+
+//*ARG = last element
+@SP
+A=M-1
+D=M
+@ARG
+A=M
+M=D
+
+//SP =ARG + 1
+@ARG
+D=M+1
+@SP
+M=D
+
+// LCL = endframe - 4
+@4
+D=A
+@endframe.%s
+A=M-D
+D=M
+@LCL
+M=D
+
+// ARG = endframe - 3
+@3
+D=A
+@endframe.%s
+A=M-D
+D=M
+@ARG
+M=D
+
+// THIS = endframe - 2
+@2
+D=A
+@endframe.%s
+A=M-D
+D=M
+@THIS
+M=D
+
+// THAT = endframe -1
+@1
+D=A
+@endframe.%s
+A=M-D
+D=M
+@THAT
+M=D
+
+// goto return address
+@ret.%ret
+A=M
+D;JMP

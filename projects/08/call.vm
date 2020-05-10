@@ -1,0 +1,71 @@
+// CALL FUNCTION
+
+//add return label %s *SP = %s
+@return.%retur
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+
+//save LCL -> *SP= LCL,SP++
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+
+// save ARG
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+
+//push THIS
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+
+//push THAT
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+
+// Lcl = Sp
+@SP
+D=M
+@LCL
+M=D
+
+
+// ARG = SP - (nargs+5)
+@R5
+D=A
+@%nargs
+D=D+A
+@SP
+D=M-D
+@ARG
+M=D
+
+
+//goto %s
+@%s
+D;JMP
+
+//label return.%retur
+(return.%retur)

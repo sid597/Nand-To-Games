@@ -310,7 +310,7 @@ class Code_Writer(object):
         command = command.split()
         commandtype = ''.join(command[:2])
         i = command[-1]
-        print commandtype, i
+        print commandtype, i,'----'
         d = {}
         for dirpath, dirnames, files in os.walk("./pushpop"):
             for file_name in files:
