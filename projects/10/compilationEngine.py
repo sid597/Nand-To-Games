@@ -180,11 +180,11 @@ class compilationEngine(object):
     def compile_expression_list(self):
         print '<expressionList>'
         self.xml.append("<expressionList>")
-
-        self.compile_expression_list()
+        self.compile_expression()
         while self.current_token_value == ',':
             print self.current_token
             self.xml.append(self.current_token)
+            self.increase_ctr()
             self.compile_expression()
         print '</expressionList>'
         self.xml.append("</expressionList>")
@@ -196,9 +196,17 @@ class compilationEngine(object):
                 print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
+                print self.current_token
+                self.xml.append(self.current_token)
+
                 if self.next_token_value != ')':
                     self.compile_expression_list()
-                if self.current_token_value == ')':
+                else:
+                    print '<expressionList>'
+                    print '</expressionList>'
+                    self.xml.append('<expressionList>')
+                    self.xml.append('</expressionList>')
+                    self.increase_ctr()
                     print self.current_token
                     self.xml.append(self.current_token)
                     self.increase_ctr()
@@ -207,7 +215,11 @@ class compilationEngine(object):
                 print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
-                self.xml.append(self.current_token)
+                if self.current_token_value == '.':
+                    print self.current_token
+                    self.xml.append(self.current_token)
+
+
                 self.increase_ctr()
                 # print self.current_token, '--5'
                 if subroutine_name(self.current_token):
@@ -220,18 +232,23 @@ class compilationEngine(object):
                         self.xml.append(self.current_token)
 
                         # print self.current_token, '--7'
-                        if self.next_token_value != ')':
-                            self.compile_expression_list()
-                        else:
+                        if self.next_token_value == ')':
                             print '<expressionList>'
                             print '</expressionList>'
                             self.xml.append('<expressionList>')
                             self.xml.append('</expressionList>')
 
                             self.increase_ctr()
-
+                            print self.current_token
                             self.xml.append(self.current_token)
                             self.increase_ctr()
+                        else:
+                            self.increase_ctr()
+                            self.compile_expression_list()
+                            print self.current_token
+                            self.xml.append(self.current_token)
+                            self.increase_ctr()
+
 
                         # else:
                         #     return False, self.start_ctr
@@ -243,7 +260,7 @@ class compilationEngine(object):
     def compile_term(self):
         print '<term>'
         self.xml.append("<term>")
-        print self.current_token
+        # print self.current_token
         if var_name(self.current_token):
             if self.next_token == '[':
                 print self.current_token
@@ -346,7 +363,7 @@ class compilationEngine(object):
                         self.xml.append(self.current_token)
                         self.increase_ctr()
                         self.compile_expression()
-                        # print self.current_token,'---2'
+                        # print self.current_token,'---2-----------------'
                         if self.current_token_value == ';':
                             print self.current_token
                             self.xml.append(self.current_token)
@@ -360,7 +377,7 @@ class compilationEngine(object):
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     self.compile_expression()
-                    # print self.current_token,'---2'
+                    print self.current_token
                     self.xml.append(self.current_token)
                     self.increase_ctr()
 
@@ -432,7 +449,7 @@ class compilationEngine(object):
 
     def compile_while_statement(self):
         print '<whileStatement>'
-        self.xml.append("</whileStatement>")
+        self.xml.append("<whileStatement>")
 
         if self.current_token_value == 'while':
             print self.current_token
@@ -479,6 +496,9 @@ class compilationEngine(object):
             self.increase_ctr()
             # print self.current_token,'0----'
             self.compile_subroutine_call()
+            # print self.current_token,'0----'
+
+            # self.increase_ctr()
             if self.current_token_value == ';':
                 print self.current_token
                 self.xml.append(self.current_token)
@@ -538,7 +558,7 @@ class compilationEngine(object):
         self.xml.append("<subroutineBody>")
 
         print self.current_token
-        # self.xml.append(self.current_token), '--2'
+        self.xml.append(self.current_token)
         if self.current_token_value == '{':
             self.increase_ctr()
             # print self.current_token, '--3'
@@ -722,7 +742,8 @@ class compilationEngine(object):
                         while self.current_token_value in {'constructor', 'function', 'method'}:
                             self.compile_subroutine_dec()
                             self.increase_ctr()
-                            # print self.current_token,self.next_token,'-----------'
+                        print self.current_token
+                        self.xml.append(self.current_token)
             print '</class>'
             self.xml.append('</class>')
         return None
@@ -797,13 +818,13 @@ return_test_list = ['<keyword> return </keyword>',
 
 # d= compilationEngine(return_test_list)
 # print d.compile_return()
-with open('./ExpressionLessSquare/MainTT.xml', 'r') as exam:
+with open('./ArrayTest/MainT.xml', 'r') as exam:
     com_lis = exam.read().splitlines()
 
 # pprint(com_lis)
 d = compilationEngine(com_lis)
 print d.compile_class()
-with open('./ExpressionLessSquare/main_exam.xml', 'w') as ex:
+with open('./ArrayTest/arr.xml', 'w') as ex:
     for i in d.xml:
         ex.write(i + '\n')
 # print d.xml
