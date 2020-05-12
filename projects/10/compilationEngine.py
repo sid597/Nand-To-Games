@@ -63,9 +63,10 @@ def unary_op(xml_command):
 
 
 def op(xml_command):
+    print xml_command.split()[1]
     tokens = xml_command.split()
-    if tokens[0] == '<symbol>' and tokens[1] in {'-', '+', '*', '/', '&',
-                                                 '|', '<', '>', '='}:
+    if tokens[0] == '<symbol>' and tokens[1] in {'-', '+', '*', '/', '&', '&gt;',
+                                                '|', '<', '>', '=', '&lt;', '&amp;'}:
         return tokens[1]
     return False
 
@@ -219,7 +220,6 @@ class compilationEngine(object):
                     print self.current_token
                     self.xml.append(self.current_token)
 
-
                 self.increase_ctr()
                 # print self.current_token, '--5'
                 if subroutine_name(self.current_token):
@@ -249,7 +249,6 @@ class compilationEngine(object):
                             self.xml.append(self.current_token)
                             self.increase_ctr()
 
-
                         # else:
                         #     return False, self.start_ctr
                     else:
@@ -262,7 +261,10 @@ class compilationEngine(object):
         self.xml.append("<term>")
         # print self.current_token
         if var_name(self.current_token):
-            if self.next_token == '[':
+            if self.next_token_value == '[':
+                print self.current_token
+                self.xml.append(self.current_token)
+                self.increase_ctr()
                 print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
@@ -274,10 +276,10 @@ class compilationEngine(object):
                 else:
                     return False, self.start_ctr
 
-            elif self.next_token == '(':
+            elif self.next_token_value == '(':
                 self.compile_subroutine_call()
 
-            elif self.next_token == '.':
+            elif self.next_token_value == '.':
                 self.compile_subroutine_call()
 
             else:
@@ -308,16 +310,22 @@ class compilationEngine(object):
                 print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
-            if integer_constant(self.current_token):
+            elif integer_constant(self.current_token):
                 print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
-            if keyword_constant(self.current_token):
+            elif keyword_constant(self.current_token):
                 print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             else:
                 return False
+        print self.current_token, op(self.current_token), '+++++++++++++++++++++++++'
+        # while op(self.current_token):
+        #     print self.current_token
+        #     self.xml.append(self.current_token)
+        #     self.increase_ctr()
+        #     self.compile_term()
         print '</term>'
         self.xml.append("</term>")
 
@@ -818,7 +826,7 @@ return_test_list = ['<keyword> return </keyword>',
 
 # d= compilationEngine(return_test_list)
 # print d.compile_return()
-with open('./ArrayTest/MainT.xml', 'r') as exam:
+with open('./ArrayTest/MainTT.xml', 'r') as exam:
     com_lis = exam.read().splitlines()
 
 # pprint(com_lis)
