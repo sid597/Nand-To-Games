@@ -149,12 +149,12 @@ class compilationEngine(object):
         if var_name(self.current_token):
             print self.current_token
             self.xml.append(self.current_token)
-            print self.current_token,self.next_token, '---0'
+            # print self.current_token,self.next_token, '---0'
 
             self.increase_ctr()
         else:
             return False, self.start_ctr
-        print self.current_token,'---1'
+        # print self.current_token,'---1'
         while self.current_token_value != ';':
             if self.current_token_value == ',':
                 print self.current_token
@@ -243,7 +243,7 @@ class compilationEngine(object):
     def compile_term(self):
         print '<term>'
         self.xml.append("<term>")
-        print self.current_token,self.next_token,'--compile_term--beforeif-----'
+        print self.current_token
         if var_name(self.current_token):
             if self.next_token == '[':
                 print self.current_token
@@ -267,7 +267,7 @@ class compilationEngine(object):
                 print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
-                print self.current_token,'---inside compile else-------'
+                # print self.current_token,'---inside compile else-------'
         elif unary_op(self.current_token):
             print self.current_token
             self.xml.append(self.current_token)
@@ -309,14 +309,14 @@ class compilationEngine(object):
         self.xml.append("<expression>")
 
         self.compile_term()
-        print self.current_token, '---4'
-        while op(self.current_token_value):
+        # print self.current_token, '---4'
+        while op(self.current_token):
             print self.current_token
             self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_term()
         # self.increase_ctr()
-        print self.current_token,'---4'
+        # print self.current_token,'---4'
         print '</expression>'
         self.xml.append("</expression>")
 
@@ -360,7 +360,7 @@ class compilationEngine(object):
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     self.compile_expression()
-                    print self.current_token,'---2'
+                    # print self.current_token,'---2'
                     self.xml.append(self.current_token)
                     self.increase_ctr()
 
@@ -384,6 +384,7 @@ class compilationEngine(object):
             if self.current_token_value == '(':
                 print self.current_token
                 self.xml.append(self.current_token)
+                self.increase_ctr()
                 self.compile_expression()
                 if self.current_token_value == ')':
                     print self.current_token
@@ -476,7 +477,7 @@ class compilationEngine(object):
             print self.current_token
             self.xml.append(self.current_token)
             self.increase_ctr()
-            print self.current_token,'0----'
+            # print self.current_token,'0----'
             self.compile_subroutine_call()
             if self.current_token_value == ';':
                 print self.current_token
@@ -537,7 +538,7 @@ class compilationEngine(object):
         self.xml.append("<subroutineBody>")
 
         print self.current_token
-        self.xml.append(self.current_token), '--2'
+        # self.xml.append(self.current_token), '--2'
         if self.current_token_value == '{':
             self.increase_ctr()
             # print self.current_token, '--3'
@@ -720,6 +721,8 @@ class compilationEngine(object):
 
                         while self.current_token_value in {'constructor', 'function', 'method'}:
                             self.compile_subroutine_dec()
+                            self.increase_ctr()
+                            # print self.current_token,self.next_token,'-----------'
             print '</class>'
             self.xml.append('</class>')
         return None
@@ -803,4 +806,4 @@ print d.compile_class()
 with open('./ExpressionLessSquare/main_exam.xml', 'w') as ex:
     for i in d.xml:
         ex.write(i + '\n')
-print d.xml
+# print d.xml
