@@ -18,7 +18,6 @@
         <symbol>)</symbol>
         <subroutineBody>
             <symbol>{</symbol>
-            <keyword>var</keyword>
             <varDec>
                 <keyword>var</keyword>
                 <identifier>SquareGame</identifier>
@@ -39,26 +38,32 @@
                 </letStatement>
                 <doStatement>
                     <keyword>do</keyword>
+                    <identifier>game</identifier>
                     <symbol>.</symbol>
                     <identifier>run</identifier>
                     <symbol>(</symbol>
+                    <expressionList>
+                    </expressionList>
                     <symbol>)</symbol>
                     <symbol>;</symbol>
                 </doStatement>
                 <doStatement>
                     <keyword>do</keyword>
+                    <identifier>game</identifier>
                     <symbol>.</symbol>
                     <identifier>dispose</identifier>
                     <symbol>(</symbol>
+                    <expressionList>
+                    </expressionList>
                     <symbol>)</symbol>
                     <symbol>;</symbol>
                 </doStatement>
-            </returnStatement>
-            <keyword>return</keyword>
-            <symbol>;</symbol>
-        </returnStatement>
-    </statements>
-    <symbol>}</symbol>
-</subroutineBody>
-        </subroutineDec>
-        </class>
+                <returnStatement>
+                    <keyword>return</keyword>
+                    <symbol>;</symbol>
+                </returnStatement>
+            </statements>
+            <symbol>}</symbol>
+        </subroutineBody>
+    </subroutineDec>
+</class>

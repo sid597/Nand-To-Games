@@ -190,6 +190,7 @@ class compilationEngine(object):
         self.xml.append("</expressionList>")
 
     def compile_subroutine_call(self):
+
         if var_name(self.current_token):
             if self.next_token_value == '(':
                 print self.current_token
@@ -203,8 +204,9 @@ class compilationEngine(object):
                     self.increase_ctr()
 
             elif self.next_token_value == '.':
-                self.increase_ctr()
                 print self.current_token
+                self.xml.append(self.current_token)
+                self.increase_ctr()
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 # print self.current_token, '--5'
@@ -220,14 +222,19 @@ class compilationEngine(object):
                         # print self.current_token, '--7'
                         if self.next_token_value != ')':
                             self.compile_expression_list()
-                        if self.next_token_value == ')':
+                        else:
+                            print '<expressionList>'
+                            print '</expressionList>'
+                            self.xml.append('<expressionList>')
+                            self.xml.append('</expressionList>')
+
                             self.increase_ctr()
-                            # print self.current_token,'--8'
+
                             self.xml.append(self.current_token)
                             self.increase_ctr()
-                            # print self.current_token, '--8'
-                        else:
-                            return False, self.start_ctr
+
+                        # else:
+                        #     return False, self.start_ctr
                     else:
                         return False, self.start_ctr
                 else:
@@ -469,6 +476,7 @@ class compilationEngine(object):
             print self.current_token
             self.xml.append(self.current_token)
             self.increase_ctr()
+            print self.current_token,'0----'
             self.compile_subroutine_call()
             if self.current_token_value == ';':
                 print self.current_token
@@ -484,7 +492,7 @@ class compilationEngine(object):
 
     def compile_return(self):
         print '<returnStatement>'
-        self.xml.append("</returnStatement>")
+        self.xml.append("<returnStatement>")
 
         if self.current_token_value == 'return':
             print self.current_token
@@ -533,7 +541,6 @@ class compilationEngine(object):
         if self.current_token_value == '{':
             self.increase_ctr()
             # print self.current_token, '--3'
-            self.xml.append(self.current_token)
             while self.current_token_value == 'var':
                 self.compile_var_dec()
             else:
