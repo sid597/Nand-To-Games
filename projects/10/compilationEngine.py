@@ -199,7 +199,6 @@ class compilationEngine(object):
                 self.increase_ctr()
                 print self.current_token
                 self.xml.append(self.current_token)
-
                 if self.next_token_value != ')':
                     self.compile_expression_list()
                 else:
@@ -279,6 +278,7 @@ class compilationEngine(object):
             elif self.next_token_value == '(':
                 self.compile_subroutine_call()
 
+
             elif self.next_token_value == '.':
                 self.compile_subroutine_call()
 
@@ -288,24 +288,29 @@ class compilationEngine(object):
                 self.increase_ctr()
                 # print self.current_token,'---inside compile else-------'
         elif unary_op(self.current_token):
+            # print self.current_token,self.next_token, '+++++=========++++++='
             print self.current_token
             self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_term()
-            self.increase_ctr()
+
+            # self.increase_ctr()
 
         elif self.current_token_value == '(':
+            print self.current_token,self.next_token, '+++++=========++++++='
+
             print self.current_token
             self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_expression()
             if self.current_token_value == ')':
                 print self.current_token
-                self.xml.append(self.current_token)()
+                self.xml.append(self.current_token)
                 self.increase_ctr()
             else:
                 return False, self.start_ctr
         else:
+            # print self.current_token, '+++++=========++++++='
             if string_constant(self.current_token):
                 print self.current_token
                 self.xml.append(self.current_token)
@@ -320,7 +325,7 @@ class compilationEngine(object):
                 self.increase_ctr()
             else:
                 return False
-        print self.current_token, op(self.current_token), '+++++++++++++++++++++++++'
+        # print self.current_token, op(self.current_token), '+++++++++++++++++++++++++'
         # while op(self.current_token):
         #     print self.current_token
         #     self.xml.append(self.current_token)
@@ -340,8 +345,10 @@ class compilationEngine(object):
             self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_term()
+
         # self.increase_ctr()
         # print self.current_token,'---4'
+
         print '</expression>'
         self.xml.append("</expression>")
 
@@ -826,13 +833,13 @@ return_test_list = ['<keyword> return </keyword>',
 
 # d= compilationEngine(return_test_list)
 # print d.compile_return()
-with open('./ArrayTest/MainTT.xml', 'r') as exam:
+with open('./Square/SquareT.xml', 'r') as exam:
     com_lis = exam.read().splitlines()
 
 # pprint(com_lis)
 d = compilationEngine(com_lis)
 print d.compile_class()
-with open('./ArrayTest/arr.xml', 'w') as ex:
+with open('./Square/sqgr_gam.xml', 'w') as ex:
     for i in d.xml:
         ex.write(i + '\n')
 # print d.xml
