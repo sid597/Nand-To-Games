@@ -23,6 +23,13 @@ the lines one by one we can do processing  without worrying about the unseen dat
         Based on how I solve this problem the representation of data will be decided
         1. Read line from file if the line contains /** remove all words after /** and continue parsing till find */
 
+
+Token can be one of the following 5 :
+1. Keyword
+2. Symbol
+3. Integer Constant
+4. String Constant
+5. Identifier
 """
 
 import os
