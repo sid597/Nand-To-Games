@@ -1,0 +1,87 @@
+// SUBROUTINE declaration
+function Main.main 1
+// DO statement 
+push constant 8001
+push constant 16
+neg
+push constant 1
+call Main.fillMemory 3
+pop temp 0
+// LET Statement
+push constant 8000
+call Memory.peek 1
+// DO statement 
+push local 0
+call Main.convert 1
+pop temp 0
+// RETURN statement
+push constant 0
+return
+// SUBROUTINE declaration
+function Main.convert 3
+// LET Statement
+push constant -1
+// WHILE statement
+label Main.convert70
+push local 2
+not
+if-goto Main.convert70!~
+// LET Statement
+push local 1
+push constant 1
+add
+// LET Statement
+push local 0
+call Main.nextMask 1
+// IF Statement
+push local 1
+push constant 16
+gt
+not
+if-goto Mainconvert92
+// IF Statement
+push argument 0
+push local 0
+and
+push constant 0
+eq
+not
+if-goto Mainconvert102
+// DO statement 
+push constant 8000
+push local 1
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+goto Mainconvert102!~
+label Mainconvert102
+// DO statement 
+push constant 8000
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+label Mainconvert102!~
+goto Mainconvert92!~
+label Mainconvert92
+// LET Statement
+push constant 0
+label Mainconvert92!~
+goto Main.convert70
+label Main.convert70!~
+// RETURN statement
+push constant 0
+return
+// SUBROUTINE declaration
+function Main.nextMask 0
+// IF Statement
+push argument 0
+push constant 0
+eq
+not
+if-goto MainnextMask165
+// RETURN statement
+push constant 1
+return

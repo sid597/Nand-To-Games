@@ -53,7 +53,7 @@ def symbol(token_name):
 
 
 def string_constant(token_name):
-    return '<stringConstant> %s </stringConstant>' % token_name[1:-1]
+    return '<stringConstant> %s</stringConstant>' % token_name[1:-1]
 
 
 def identifier(token_name):

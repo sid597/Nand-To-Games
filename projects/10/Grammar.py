@@ -14,7 +14,6 @@ className: identifier
 subroutineName: identifier
 varName: identifier
 
-
 ----------------------Statements:------------------------------
 statements: statement*
 statement:    letStatement | ifStatement | whileStatement |
@@ -25,7 +24,6 @@ ifStatement:    'if' '(' expression ')' '{' statements '}'
 whileStatement: 'while' '(' expression ')' '{' statements '}'
 doStatement: '   do' subroutineCall ';'
 ReturnStatement 'return' expression? ';'
-
 
 ----------------------Expressions:------------------------------
 expression: term (op term)*
