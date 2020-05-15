@@ -63,11 +63,13 @@ def unary_op(xml_command):
 
 
 def op(xml_command):
-    print xml_command.split()[1]
     tokens = xml_command.split()
     if tokens[0] == '<symbol>' and tokens[1] in {'-', '+', '*', '/', '&', '&gt;',
-                                                '|', '<', '>', '=', '&lt;', '&amp;'}:
+                                                 '|', '<', '>', '=', '&lt;', '&amp;'}:
+        if tokens[1] in {'&gt;': '>', '&lt;': '<', '&amp;': '&'}:
+            return {'&gt;': '>', '&lt;': '<', '&amp;': '&'}[tokens[1]]
         return tokens[1]
+
     return False
 
 
@@ -81,23 +83,105 @@ def type_(xml_command):
     return False
 
 
-# l = ['<symbol> ( </symbol>',
-#      '<symbol> ( </symbol>',
-#      '<identifier> y </identifier>',
-#      '<symbol> + </symbol>',
-#      '<identifier> size </identifier>',
-#      '<symbol> ) </symbol>',
-#      '<symbol> &lt; </symbol>',
-#      '<integerConstant> 254 </integerConstant>',
-#      '<symbol> ) </symbol>'
-#      ]
 from pprint import pprint
 
 
-# pprint(['<symbol> ( </symbol>','<symbol> ( </symbol>', '<identifier> y </identifier>', '<symbol> + </symbol>',
-# '<identifier> size </identifier>', '<symbol> ) </symbol>', '<symbol> &lt; </symbol>','<integerConstant> 254
-# </integerConstant>','<symbol> ) </symbol>'] ) print term(l, 0)
+class Symbol_Table():
+    """
+    name : identifier
+    type: int, char, boolean, class_name
+    kind: field, static, local, argument
+    index: 0, 1, 2, 3 ....
+    scope: class level, subroutine level
+    """
 
+    def __init__(self):
+        self.class_table = {'varName': {},
+                            'field': 0,
+                            'static': 0
+                            }
+        self.function_table = {'varName': {},
+                               'local': 0,
+                               'argument': 0
+                               }
+        # self.current_scope = None
+        # self.current = None
+
+    def new_class_table(self):
+        self.class_table = {'varName': {},
+                            'field': 0,
+                            'static': 0
+                            }
+
+    def new_function_table(self):
+        self.function_table = {'varName': {},
+                               'local': 0,
+                               'argument': 0
+                               }
+
+    def add_to_class(self, data):
+        """Update the data in class for var_name
+        Expected data format = [name,type,kind]
+
+        :param data: Data to be updated with
+        :return:
+        """
+        self.class_table['varName'][data[0]] = data + [self.class_table[data[-1]]]
+        print self.class_table
+        self.class_table[data[-1]] += 1
+
+    def add_to_function(self, data):
+        """Update the data in class for var_name
+        Expected data format = [name,type,kind]
+
+        :param data: Data to be updated with
+        :return:
+        """
+        self.function_table['varName'][data[0]] = data + [self.function_table[data[-1]]]
+        self.function_table[data[-1]] += 1
+
+    def add_this(self, class_type):
+        """
+        Add a row to function argument if the current subroutine is method
+        :param class_type:
+        :return:
+        """
+        self.function_table['varName']['this'] = ['this', class_type, 'argument', self.function_table['argument']]
+        self.function_table['argument'] += 1
+
+    def find_in_class(self, vari_name):
+        return self.class_table['varName'][vari_name]
+
+    def find_in_function(self, vari_name):
+        return self.function_table['varName'][vari_name]
+
+    def find_in_both(self, vari_name):
+        try:
+            return ['this' if i == 'field' else i for i in self.find_in_class(vari_name)]
+        except KeyError:
+
+            try:
+                return self.find_in_function(vari_name)
+            except KeyError:
+                return False
+
+
+
+
+
+
+
+
+from pprint import pprint
+
+
+# d = Symbol_Table()
+# d.new_class_table()
+# print d.class_table
+# d.add_to_class(['x', 'int', 'field'])
+# d.add_to_class(['y', 'int', 'field'])
+# pprint(d.class_table)
+# print d.find_in_class('x')
 
 class compilationEngine(object):
 
@@ -111,6 +195,11 @@ class compilationEngine(object):
         self.next_token_value = self.next_token.split()[1]
         self.next_token_tag = self.next_token.split()[0]
         self.xml = []
+        self.class_table_data = [None, None, None]
+        self.function_table_data = [None, None, None]
+        self.symbol_table = Symbol_Table()
+        self.current_class_name = None
+        self.current_function_name = None
 
     def increase_ctr(self, val=1):
         self.start_ctr += val
@@ -130,25 +219,30 @@ class compilationEngine(object):
         :return:
         """
 
-        print '<varDec>'
         self.xml.append("<varDec>")
 
         if self.current_token_value == "var":
-            print self.current_token
+            # Set current function table data to local type variable
+            self.function_table_data[2] = 'local'
+
             self.xml.append(self.current_token)
             self.increase_ctr()
         else:
             return False, self.start_ctr
 
         if type_(self.current_token):
-            print self.current_token
+
+            self.function_table_data[1] = type_(self.current_token)
+
             self.xml.append(self.current_token)
             self.increase_ctr()
         else:
             return False, self.start_ctr, self.current_token
 
         if var_name(self.current_token):
-            print self.current_token
+            self.function_table_data[0] = var_name(self.current_token)
+            self.symbol_table.add_to_function(self.function_table_data)
+
             self.xml.append(self.current_token)
             # print self.current_token,self.next_token, '---0'
 
@@ -158,71 +252,85 @@ class compilationEngine(object):
         # print self.current_token,'---1'
         while self.current_token_value != ';':
             if self.current_token_value == ',':
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             else:
                 return False, self.start_ctr
 
             if var_name(self.current_token):
-                print self.current_token
+                self.function_table_data[0] = var_name(self.current_token)
+                self.symbol_table.add_to_function(self.function_table_data)
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             else:
                 return False, self.start_ctr
         else:
             if self.current_token_value == ';':
-                print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
-        print '</varDec>'
+
         self.xml.append("</varDec>")
 
     def compile_expression_list(self):
-        print '<expressionList>'
-        self.xml.append("<expressionList>")
+        """
+        Grammar : (expression (',' expression)* )?
+
+        :return:
+        """
+        # print '<expressionList>'
+        # self.xml.append("<expressionList>")
         self.compile_expression()
         while self.current_token_value == ',':
-            print self.current_token
-            self.xml.append(self.current_token)
+            # print self.current_token
+            # self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_expression()
-        print '</expressionList>'
-        self.xml.append("</expressionList>")
+        if self.current_token_value == ')':
+            self.increase_ctr()
+        # print '</expressionList>'
+        # self.xml.append("</expressionList>")
 
     def compile_subroutine_call(self):
+        """
+        Grammar : subroutineName '(' expressionList ')' | (className |
+                  varName) '.' subroutineName '(' expressionList ')'
 
+        :return:
+        """
+        current_call = self.current_token_value
+        call_class = self.current_token_value
         if var_name(self.current_token):
             if self.next_token_value == '(':
-                print self.current_token
-                self.xml.append(self.current_token)
-                self.increase_ctr()
-                print self.current_token
+                self.increase_ctr(2)
                 self.xml.append(self.current_token)
                 if self.next_token_value != ')':
                     self.compile_expression_list()
+
                 else:
-                    print '<expressionList>'
-                    print '</expressionList>'
+
                     self.xml.append('<expressionList>')
                     self.xml.append('</expressionList>')
                     self.increase_ctr()
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
-
+                print 'call %s' % call_class
             elif self.next_token_value == '.':
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 if self.current_token_value == '.':
-                    print self.current_token
+                    call_class += self.current_token_value
+
                     self.xml.append(self.current_token)
 
                 self.increase_ctr()
                 # print self.current_token, '--5'
                 if subroutine_name(self.current_token):
-                    print self.current_token
+                    call_class += self.current_token_value
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     # print self.current_token, '--5'
@@ -232,21 +340,22 @@ class compilationEngine(object):
 
                         # print self.current_token, '--7'
                         if self.next_token_value == ')':
-                            print '<expressionList>'
-                            print '</expressionList>'
+
                             self.xml.append('<expressionList>')
                             self.xml.append('</expressionList>')
 
                             self.increase_ctr()
-                            print self.current_token
+
                             self.xml.append(self.current_token)
                             self.increase_ctr()
                         else:
                             self.increase_ctr()
                             self.compile_expression_list()
-                            print self.current_token
+
                             self.xml.append(self.current_token)
                             self.increase_ctr()
+
+                        print 'call %s' % call_class
 
                         # else:
                         #     return False, self.start_ctr
@@ -256,20 +365,27 @@ class compilationEngine(object):
                     return False, self.start_ctr
 
     def compile_term(self):
-        print '<term>'
+        """
+        Grammar : integerConstant | stringConstant | keywordConstant |
+                varName | varName '[' expression ']' | subroutineCall |
+                '(' expression ')' | unaryOp term
+
+        :return:
+        """
+        # print '<term>'
         self.xml.append("<term>")
         # print self.current_token
         if var_name(self.current_token):
             if self.next_token_value == '[':
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 self.compile_expression()
                 if self.current_token_value == ']':
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                 else:
@@ -278,18 +394,23 @@ class compilationEngine(object):
             elif self.next_token_value == '(':
                 self.compile_subroutine_call()
 
-
             elif self.next_token_value == '.':
                 self.compile_subroutine_call()
 
             else:
-                print self.current_token
+                if self.symbol_table.find_in_both(self.current_token_value):
+                    row = self.symbol_table.find_in_both(self.current_token_value)
+                    mem, ctr = row[-2], row[-1]
+                    print 'push %s' % mem +' '+ str(ctr)
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 # print self.current_token,'---inside compile else-------'
         elif unary_op(self.current_token):
             # print self.current_token,self.next_token, '+++++=========++++++='
-            print self.current_token
+            # if integer_constant(self.next_token):
+            print "push %s" % self.next_token_value
+            print 'push %s' % self.current_token_value
+            self.increase_ctr()
             self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_term()
@@ -297,14 +418,11 @@ class compilationEngine(object):
             # self.increase_ctr()
 
         elif self.current_token_value == '(':
-            print self.current_token,self.next_token, '+++++=========++++++='
 
-            print self.current_token
             self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_expression()
             if self.current_token_value == ')':
-                print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             else:
@@ -312,75 +430,80 @@ class compilationEngine(object):
         else:
             # print self.current_token, '+++++=========++++++='
             if string_constant(self.current_token):
-                print self.current_token
+                print "push %s" % self.current_token_value
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             elif integer_constant(self.current_token):
-                print self.current_token
+                print "push %s" % self.current_token_value
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             elif keyword_constant(self.current_token):
-                print self.current_token
+                print "push %s" % self.current_token_value
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             else:
                 return False
-        # print self.current_token, op(self.current_token), '+++++++++++++++++++++++++'
-        # while op(self.current_token):
-        #     print self.current_token
-        #     self.xml.append(self.current_token)
-        #     self.increase_ctr()
-        #     self.compile_term()
-        print '</term>'
         self.xml.append("</term>")
 
     def compile_expression(self):
-        print '<expression>'
+        """
+
+        term (op term)*
+        :return:
+        """
+        # print '<expression>'
         self.xml.append("<expression>")
 
         self.compile_term()
         # print self.current_token, '---4'
         while op(self.current_token):
-            print self.current_token
+            current_op = op(self.current_token)
             self.xml.append(self.current_token)
             self.increase_ctr()
             self.compile_term()
+            print current_op
 
         # self.increase_ctr()
         # print self.current_token,'---4'
 
-        print '</expression>'
+        # print '</expression>'
         self.xml.append("</expression>")
 
     def compile_let_statement(self):
-        print '<letStatement>'
+        """
+        'let' varName ('[' expression ']')? '=' expression ';'
+        :return:
+        """
+
         self.xml.append("<letStatement>")
+        variable_name = ''
 
         if self.current_token_value == 'let':
-            print self.current_token
+
             self.xml.append(self.current_token)
             self.increase_ctr()
             if var_name(self.current_token):
-                print self.current_token
+                variable_name = self.current_token_value
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 # print self.current_token,'---2'
                 if self.current_token_value == '[':
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     self.compile_expression()
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     if self.current_token_value == '=':
-                        print self.current_token
+
                         self.xml.append(self.current_token)
                         self.increase_ctr()
                         self.compile_expression()
                         # print self.current_token,'---2-----------------'
                         if self.current_token_value == ';':
-                            print self.current_token
+
                             self.xml.append(self.current_token)
                             self.increase_ctr()
                         else:
@@ -388,11 +511,12 @@ class compilationEngine(object):
                     else:
                         return False, self.start_ctr
                 elif self.current_token_value == '=':
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     self.compile_expression()
-                    print self.current_token
+                    print 'pop %s' % variable_name
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
 
@@ -402,48 +526,62 @@ class compilationEngine(object):
         else:
             return False, self.start_ctr
 
-        print '</letStatement>'
         self.xml.append("</letStatement>")
 
     def compile_if_statement(self):
-        print '<ifStatement>'
-        self.xml.append("<ifStatement>")
+        """
+        Grammar : 'if' '(' expression ')' '{' statements '}'
+                  ('else' '{' statements '}')?
+
+        :return:
+        """
+
+        # Unique lable for false statement
+        l1 = str(self.current_class_name) + str(self.current_function_name) + str(self.start_ctr)
+        l2 = str(self.current_class_name) + str(self.current_function_name) + str(self.start_ctr) + '!~'
 
         if self.current_token_value == 'if':
-            print self.current_token
+
             self.xml.append(self.current_token)
             self.increase_ctr()
             if self.current_token_value == '(':
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 self.compile_expression()
                 if self.current_token_value == ')':
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     if self.current_token_value == '{':
-                        print self.current_token
+                        print 'not'
+                        print 'if-goto %s' % l1
+
                         self.xml.append(self.current_token)
                         self.increase_ctr()
                         self.compile_statements()
+
                         if self.current_token_value == '}':
-                            print self.current_token
+
                             self.xml.append(self.current_token)
                             self.increase_ctr()
+                            print 'goto %s' % l2
                             if self.current_token_value == 'else':
-                                print self.current_token
+
                                 self.xml.append(self.current_token)
                                 self.increase_ctr()
+
+                                print 'label %s' % l1
                                 if self.current_token_value == '{':
-                                    print self.current_token
+
                                     self.xml.append(self.current_token)
                                     self.increase_ctr()
                                     self.compile_statements()
                                     if self.current_token_value == '}':
-                                        print self.current_token
+
                                         self.xml.append(self.current_token)
                                         self.increase_ctr()
+                                        print 'label %s' % l2
                                     else:
                                         return False, self.start_ctr
                                 else:
@@ -456,36 +594,48 @@ class compilationEngine(object):
                     print
             else:
                 print
-
         else:
             return False, self.start_ctr
-        print '</ifStatement>'
         self.xml.append("</ifStatement>")
 
     def compile_while_statement(self):
-        print '<whileStatement>'
+        """
+
+        Grammar : 'while' '(' expression ')' '{' statements '}'
+        :return:
+        """
+        l1 = str(self.current_class_name) + str(self.current_function_name) + str(self.start_ctr)
+        l2 = str(self.current_class_name) + str(self.current_function_name) + str(self.start_ctr) + '!~'
+
+        # declare label 1
+        print 'label %s' % l1
+
         self.xml.append("<whileStatement>")
 
         if self.current_token_value == 'while':
-            print self.current_token
+
             self.xml.append(self.current_token)
             self.increase_ctr()
             if self.current_token_value == '(':
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 self.compile_expression()
                 if self.current_token_value == ')':
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     if self.current_token_value == '{':
-                        print self.current_token
+                        # Negate the expression
+                        print 'not'
+                        print 'if-goto %s' % l2
+
                         self.xml.append(self.current_token)
                         self.increase_ctr()
                         self.compile_statements()
                         if self.current_token_value == '}':
-                            print self.current_token
+                            print 'goto %s' % l1
+                            print 'label %s' % l2
                             self.xml.append(self.current_token)
                             self.increase_ctr()
                         else:
@@ -498,24 +648,30 @@ class compilationEngine(object):
                 return False, self.start_ctr
         else:
             return False, self.start_ctr
-        print '</whileStatement>'
+
         self.xml.append("</whileStatement>")
 
     def compile_do_statement(self):
-        print '<doStatement>'
+        """
+        Grammar : do' subroutineCall ';'
+
+        DO basically is a goto command in vm
+        :return:
+        """
+
         self.xml.append("<doStatement>")
 
         if self.current_token_value == 'do':
-            print self.current_token
+
             self.xml.append(self.current_token)
             self.increase_ctr()
             # print self.current_token,'0----'
             self.compile_subroutine_call()
             # print self.current_token,'0----'
-
+            # print push
             # self.increase_ctr()
             if self.current_token_value == ';':
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
             else:
@@ -523,33 +679,37 @@ class compilationEngine(object):
         else:
             return False, self.start_ctr
 
-        print '</doStatement>'
         self.xml.append("</doStatement>")
 
     def compile_return(self):
-        print '<returnStatement>'
+        """
+         Grammar : 'return' expression? ';'
+
+         just use return in vm to convert
+        :return:
+        """
+
         self.xml.append("<returnStatement>")
 
         if self.current_token_value == 'return':
-            print self.current_token
+
             self.xml.append(self.current_token)
             self.increase_ctr()
             if self.current_token_value != ';':
                 self.compile_expression()
-            if self.current_token_value == ';':
-                print self.current_token
+            else:
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
-            else:
-                return False, self.start_ctr
-        else:
-            return False, self.start_ctr
-
-        print '</returnStatement>'
+            print 'return'
         self.xml.append("</returnStatement>")
 
     def compile_statements(self):
-        print '<statements>'
+        """
+        Grammar : statement*
+        :return:
+        """
+
         self.xml.append("<statements>")
         # print self.current_token,'-----statements ---'
         while self.current_token_value != '}':
@@ -565,14 +725,17 @@ class compilationEngine(object):
                 self.compile_return()
             else:
                 return False, self.start_ctr
-        print '</statements>'
+
         self.xml.append("</statements>")
 
     def compile_subroutine_body(self):
-        print '<subroutineBody>'
+        """
+        Grammar : '{' varDec* statements '}'
+        :return:
+        """
+
         self.xml.append("<subroutineBody>")
 
-        print self.current_token
         self.xml.append(self.current_token)
         if self.current_token_value == '{':
             self.increase_ctr()
@@ -582,11 +745,11 @@ class compilationEngine(object):
             else:
                 # while self.current_token_value != '}':
                 self.compile_statements()
-                print self.current_token
+
                 self.xml.append(self.current_token)
         else:
             return False, self.start_ctr
-        print '</subroutineBody>'
+
         self.xml.append("</subroutineBody>")
 
     def compile_parameter_list(self):
@@ -595,78 +758,112 @@ class compilationEngine(object):
         parameterList: ((type varName) (',' type varName)*)?
         :return:
         """
-        print '<parameterList>'
-        self.xml.append("<parameterList>")
 
+        self.xml.append("<parameterList>")
+        # Subroutine kind
+        self.function_table_data[2] = 'argument'
+
+        # Subroutine current argument Type
         if type_(self.current_token):
-            print self.current_token
+
             self.xml.append(self.current_token)
+            self.function_table_data[1] = self.current_token_value
             self.increase_ctr()
+
+            # Current variable name
             if var_name(self.current_token):
-                print self.current_token
+                self.function_table_data[0] = self.current_token_value
+                self.symbol_table.add_to_function(self.function_table_data)
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 while self.current_token_value == ',':
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     if type_(self.current_token):
-                        print self.current_token
+                        self.function_table_data[1] = self.current_token_value
+
                         self.xml.append(self.current_token)
                         self.increase_ctr()
                         if var_name(self.current_token):
-                            print self.current_token
+                            self.function_table_data[0] = self.current_token_value
+                            self.symbol_table.add_to_function(self.function_table_data)
+
                             self.xml.append(self.current_token)
                             self.increase_ctr()
-        #                 else:
-        #                     return False, self.start_ctr
-        #             else:
-        #                 return False, self.start_ctr
-        #     else:
-        #         return False, self.start_ctr
-        # else:
-        #     return False, self.start_ctr
-        print '</parameterList>'
+                        else:
+                            return False, self.start_ctr
+                    else:
+                        return False, self.start_ctr
+            else:
+                return False, self.start_ctr
+        else:
+            return False, self.start_ctr
+        # pprint(self.symbol_table.function_table)
+
         self.xml.append("</parameterList>")
 
     def compile_subroutine_dec(self):
-        print '<subroutineDec>'
-        self.xml.append("<subroutineDec>")
+        """
+        Grammar : ('constructor'|'function'|'method')
+                ('void' | type) subroutineName '(' parameterList ')'
+                subroutineBody
 
-        print self.current_token
+        Symbol Table Format : Name, type, kind, Index
+
+        :return:
+        """
+        is_subroutine_method = False
+        current_subroutine_type = self.current_token_value
+
+        # Create a new function table for the current running subroutine
+        self.symbol_table.new_function_table()
+
+        self.xml.append("<subroutineDec>")
+        # if this is a method we want to add 'this' entry to function symbol table
+        if self.current_token_value == 'method':
+            is_subroutine_method = True
+
         self.xml.append(self.current_token)
         self.increase_ctr()
+
+        # Type of this subroutine
         if type_(self.current_token) or self.current_token_value == 'void':
-            print self.current_token
+
+            if is_subroutine_method:
+                self.symbol_table.add_this(self.current_class_name)
             self.xml.append(self.current_token)
             self.increase_ctr()
+
+            # Name of subroutine
             if subroutine_name(self.current_token):
-                print self.current_token
+                self.current_function_name = self.current_token_value
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
 
                 if self.current_token_value == '(':
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
-                    # if self.current_token_value == ')':
-                    #     print self.current_token
-                    # self.xml.append(self.current_token)
-                    #     self.increase_ctr()
-                    # else:
+
+                    # Compile parameter list
                     self.compile_parameter_list()
-                    print self.current_token
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                 else:
                     return False, self.start_ctr
+                if current_subroutine_type == 'constructor':
+                    print 'push %s' % self.symbol_table.class_table['field']
+                    print 'call Memory.alloc %s' % self.symbol_table.class_table['field']
+                    print 'pop pointer 0'
                 self.compile_subroutine_body()
             else:
                 return False, self.start_ctr
         else:
             return False, self.start_ctr
 
-        print '</subroutineDec>'
         self.xml.append("</subroutineDec>")
 
     def compile_class_var_dec(self):
@@ -676,25 +873,41 @@ class compilationEngine(object):
 
         :return:
         """
-        print "<classVarDec>"
+        kind = ""
+        var_type = ""
+        name = ""
+
         self.xml.append("<classVarDec>")
 
+        # Kind of variable
         if self.current_token_value in {'static', 'field'}:
-            print self.current_token
+            if self.current_token_value == 'static':
+                self.class_table_data[2] = self.current_token_value
+
+            else:
+                self.class_table_data[2] = self.current_token_value
+
             self.xml.append(self.current_token)
             self.increase_ctr()
         else:
             return False, self.start_ctr
 
+        # Type of variable
         if type_(self.current_token):
-            print self.current_token
+            self.class_table_data[1] = type_(self.current_token)
+
             self.xml.append(self.current_token)
             self.increase_ctr()
         else:
             return False, self.start_ctr
 
+        # Name of the variable
         if var_name(self.current_token):
-            print self.current_token
+            self.class_table_data[0] = var_name(self.current_token)
+            self.symbol_table.add_to_class(self.class_table_data)
+
+            # print self.class_table_data
+
             self.xml.append(self.current_token)
             self.increase_ctr()
         else:
@@ -702,53 +915,62 @@ class compilationEngine(object):
 
         while self.current_token_value != ';':
             if self.current_token_value == ',':
-                print self.current_token
+
                 self.xml.append(self.current_token)
                 self.increase_ctr()
+                if var_name(self.current_token):
+                    self.class_table_data[0] = var_name(self.current_token)
+                    self.symbol_table.add_to_class(self.class_table_data)
+
+                    # print self.symbol_table.class_table
+
+                    self.xml.append(self.current_token)
+                    self.increase_ctr()
+                else:
+                    return "Not a valid varName"
 
             else:
                 return False, self.start_ctr
-            if var_name(self.current_token):
-                print self.current_token
-                self.xml.append(self.current_token)
-                self.increase_ctr()
-            else:
-                return "Not a valid varName"
 
         else:
             if self.current_token_value == ';':
-                print self.current_token
                 self.xml.append(self.current_token)
                 self.increase_ctr()
 
-        print "</classVarDec>"
         self.xml.append("</classVarDec>")
         return None
 
     def compile_class(self):
+        """
+        'class' className '{' classVarDec* subroutineDec* '}'
+
+        :return:
+        """
 
         if self.current_token_value != 'class':
             return False, "Not a class"
         else:
-            print '<class>'
+
             self.xml.append('<class>')
-            print self.current_token
+
             self.xml.append(self.current_token)
             self.increase_ctr()
             if not class_name(self.current_token):
                 return False, self.start_ctr
             else:
-                print self.current_token
+
+                # Set current class name
+                self.current_class_name = self.current_token_value
                 self.xml.append(self.current_token)
                 self.increase_ctr()
                 if self.current_token_value != '{':
                     return False, self.start_ctr
                 else:
-                    print self.current_token
+
                     self.xml.append(self.current_token)
                     self.increase_ctr()
                     if self.current_token_value == '}':
-                        print self.current_token
+
                         self.xml.append(self.current_token)
                     else:
                         while self.current_token_value in {'static', 'field'}:
@@ -757,9 +979,9 @@ class compilationEngine(object):
                         while self.current_token_value in {'constructor', 'function', 'method'}:
                             self.compile_subroutine_dec()
                             self.increase_ctr()
-                        print self.current_token
+
                         self.xml.append(self.current_token)
-            print '</class>'
+
             self.xml.append('</class>')
         return None
 
@@ -777,7 +999,6 @@ class_list_test = ['<keyword> class </keyword>',
                    '<symbol> ; </symbol>',
                    '<symbol> } </symbol>',
                    ]
-
 classVarDec_list_test = ['<keyword> class </keyword>',
                          '<identifier> Square </identifier>',
                          '<symbol> { </symbol>',
@@ -833,13 +1054,16 @@ return_test_list = ['<keyword> return </keyword>',
 
 # d= compilationEngine(return_test_list)
 # print d.compile_return()
-with open('./Square/SquareT.xml', 'r') as exam:
+with open('./testTT.xml', 'r') as exam:
     com_lis = exam.read().splitlines()
 
 # pprint(com_lis)
 d = compilationEngine(com_lis)
 print d.compile_class()
-with open('./Square/sqgr_gam.xml', 'w') as ex:
+with open('./out.xml', 'w') as ex:
     for i in d.xml:
         ex.write(i + '\n')
 # print d.xml
+pprint(d.symbol_table.class_table)
+pprint(d.symbol_table.function_table)
+print d.symbol_table.find_in_both('x')

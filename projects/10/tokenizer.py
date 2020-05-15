@@ -304,7 +304,7 @@ def main():
     rem_block_comments = remove_block_comments(rem_api_comments)
     # Create a xml file with the same name as the passed one and to it tokenized commands
     with open(args[-1].split('.')[0] + 'TT.xml', 'w') as write_to_xml:
-        write_to_xml.write('<tokens> \n')
+        # write_to_xml.write('<tokens> \n')
         for line in rem_block_comments:
             splitted_line = splitter(line)
             for token in splitted_line:
@@ -320,7 +320,7 @@ def main():
                 elif tokn_type == "IDENTIFIER":
                     output = identifier(token)
                 write_to_xml.write(output + '\n')
-        write_to_xml.write('</tokens> \n')
+        # write_to_xml.write('</tokens> \n')
         write_to_xml.close()
 
 

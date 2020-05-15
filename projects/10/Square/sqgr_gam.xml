@@ -96,7 +96,6 @@
 <identifier> dispose </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -131,7 +130,6 @@
 <identifier> draw </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -208,7 +206,6 @@
 <identifier> erase </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -285,7 +282,6 @@
 <identifier> incSize </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -395,7 +391,6 @@
 <identifier> decSize </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -465,7 +460,6 @@
 <identifier> moveUp </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -647,7 +641,6 @@
 <identifier> moveDown </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -839,7 +832,6 @@
 <identifier> moveLeft </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
@@ -1021,7 +1013,6 @@
 <identifier> moveRight </identifier>
 <symbol> ( </symbol>
 <parameterList>
-</parameterList>
 <symbol> ) </symbol>
 <subroutineBody>
 <symbol> { </symbol>
