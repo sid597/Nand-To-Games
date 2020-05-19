@@ -46,6 +46,7 @@ Following chips are to be implemented in this project :
                 is used as an counter/incrementer
 4. ALU        : The Main chip which is used to carry out the arithmetic operations. 
 
+![alt text](./assets/alu.png)
 
 
 NOTE : In this course the design decision was made to not build a multiplier in hardware, it is to be complemented 
@@ -57,9 +58,10 @@ NOTE : In this course the design decision was made to not build a multiplier in 
 This project was all about implementing RAM. We take D flip-flop and from that build a chip to contain 1 bit, 
 then from this bit chip register chip is implemented and from these registers RAM is build (8bit, 64bit, 512, 4k, 16k).
 These Registers and Ram can save 16 bit words. 
+![alt text](./assets/single_ram.png)
 
 It was a very good exercise to thing about how to build RAM given its specification
-
+![alt text](./assets/ram_build.png)
 NOTE: I read more about memory in real world systems and it turns out there is a hierarchy of memory which is used by cpu
       Like: registers, L1-L3 caches, DRam, storage memory. And the term RAM commonly refers to DRAM which is implemented 
       using capacitors and transistors. But in this courses implementation we are not making memory hierarchy and 
@@ -75,8 +77,8 @@ and that language is to be understood and used to write 2 programs (multiplicati
 We use 2 type of instructions to perform operations on our computer called A-instruction and C-instruction
 which are both 16-bit words 
 
-
-
+![alt text](./assets/acins.png)
+![alt text](./assets/jmp.png)
 
 
 
@@ -92,6 +94,8 @@ Following things had to done in this project:
 
 1. Build CPU chip
 2. Use RAM, CPU and ROM to build the full CPU  
+
+![alt text](./assets/hack.png)
 
 This project was tough, challenging, fun and fascinating, it took me quite some time to build it but boy it was worth it.
 
@@ -126,7 +130,7 @@ So I need to take care of all these elements and convert the legible code to mac
                 now have to convert these symbols to memory addresses. Also note that we cannot assign any variables to first 
                 16 places in the memory because those are reserved for special symbols. So we map the variables to memory
                 starting from 16th memory location.
-
+![alt text](./assets/assembler.png)
 This was the first software side of piece we need to build the full fledged computer and it was very profound to build this 
 assembler. It is quite fascinating thinking about how much we can do which such primitive language.
 
@@ -169,6 +173,8 @@ In this project we deal with the implementation of
 These segments are pointer to different memory locations which we can use as a specific type of addresses
 for different memory purposes.
 
+![alt text](./assets/vmp.png)
+![alt text](./assets/vm.png)
 
 ## Project 8
 
@@ -185,7 +191,9 @@ VM function commands:
     • call function
     • function function
     • return
-    
+  
+![alt text](./assets/stack.png)
+![alt text](./assets/fun.png)
     
 Oh man this was a  mind blowing project how branching, recursion, classes and functions can be implemted on stack machine ingenious ideas. 
 
@@ -193,9 +201,11 @@ Oh man this was a  mind blowing project how branching, recursion, classes and fu
 
 This was a project about the high level language Jack for which we are developing the compiler and the language in
 which we are going to write out OS 
-
+![alt text](./assets/jacksyn.png)
+![alt text](./assets/jv.png)
 ## Project 10-11
 
+![alt text](./assets/syntaxanalyz.png)
 Build a syntax analyzer that parses Jack programs according to the Jack
 grammar. The analyzer’s output should be written in XML, as defined in the specification section
 
@@ -220,7 +230,8 @@ The challanges which had to be implemented were :
     • Handling arrays        
         • Array construction
         • Array manipulation
-        
+
+![alt text](./assets/grammar.png)
         
 ## Project 12 
 Implement the OS described in the last unit. In this project a very minimal services are implemented consisting of the following:

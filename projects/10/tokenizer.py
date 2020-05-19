@@ -19,7 +19,7 @@ Consider the input as a stream of inputs i.e consider the following input file. 
 the lines one by one we can do processing  without worrying about the unseen data
 
     Problems to solve :
-     How to find comments : single line and multiple line both ?
+     How  to find comments : single line and multiple line both ?
         Based on how I solve this problem the representation of data will be decided
         1. Read line from file if the line contains /** remove all words after /** and continue parsing till find */
 
@@ -36,7 +36,7 @@ import os
 import sys
 from pprint import pprint
 
-
+./assets/overall.png
 # pprint(read_and_return_input_list(args[-1]))
 
 

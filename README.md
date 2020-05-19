@@ -26,6 +26,9 @@ software provided by the system architect, following projects are build in this 
 
 NOTE: For what is done in each week go to that particular week you will find a readme for that project. 
 
+![alt text](./projects/assets/projects.png)
+
+
 ## Why doing this course ?
 
 1. For the thrill of making something from nothing.
