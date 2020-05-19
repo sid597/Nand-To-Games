@@ -19,7 +19,7 @@ programs into machine language (chapters 6, 7, 8, 10, 11). Finally, we reach the
 grounds of our journey, describing how a typical hardware platform is actually constructed (chapters 1–5).
 
 
-[Overall pic](/assets/overall.png)
+![alt text](/assets/overall.png)
 
 
 NOTE : All the chips were developed using the HDL provided in the website 
