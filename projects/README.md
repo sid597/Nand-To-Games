@@ -173,7 +173,7 @@ In this project we deal with the implementation of
 These segments are pointer to different memory locations which we can use as a specific type of addresses
 for different memory purposes.
 
-![alt text](./assets/vmp.png)
+![alt text](./assets/vmparadigm.png)
 ![alt text](./assets/vm.png)
 
 ## Project 8

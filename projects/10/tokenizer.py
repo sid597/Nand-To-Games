@@ -36,7 +36,6 @@ import os
 import sys
 from pprint import pprint
 
-./assets/overall.png
 # pprint(read_and_return_input_list(args[-1]))
 
 
