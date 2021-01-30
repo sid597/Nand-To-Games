@@ -6,8 +6,10 @@
   Completed in : 4 weeks
   
   Project : https://www.nand2tetris.org/
+  
+  NOTE: Checkout [this link](https://github.com/sid597/Nand-To-Games/tree/9f95600f7bb752688015713ce4e908fdfeda96bb) to my intial commit and see what boilerplate code and tests were provided by the course staff
 
-## About the Project
+ ## About the Project
 The idea is to understand how computer's work and whats a better way than to build one. In this course I am building a modern computer from just a Nand gate. The hardware is built using HDL
 software provided by the system architect, following projects are build in this course:
 
